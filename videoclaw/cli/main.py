@@ -2,10 +2,17 @@
 from __future__ import annotations
 
 import click
-import os
 import json
 from pathlib import Path
 from typing import Optional
+
+from videoclaw.cli.commands.assets import assets
+from videoclaw.cli.commands.storyboard import storyboard
+from videoclaw.cli.commands.i2v import i2v
+from videoclaw.cli.commands.audio import audio
+from videoclaw.cli.commands.merge import merge
+from videoclaw.cli.commands.preview import preview
+from videoclaw.cli.commands.config import config
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -16,6 +23,16 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 def main():
     """Videoclaw - AI 视频创作 CLI 工具"""
     pass
+
+
+# 注册子命令
+main.add_command(assets)
+main.add_command(storyboard)
+main.add_command(i2v)
+main.add_command(audio)
+main.add_command(merge)
+main.add_command(preview)
+main.add_command(config)
 
 
 @main.command()
