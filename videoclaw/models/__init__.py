@@ -6,6 +6,7 @@ from videoclaw.models.base import (
     AudioBackend,
     GenerationResult,
 )
+from videoclaw.models.factory import get_image_backend, get_video_backend, get_audio_backend
 
 __all__ = [
     "ModelBackend",
@@ -13,4 +14,7 @@ __all__ = [
     "VideoBackend",
     "AudioBackend",
     "GenerationResult",
+    "get_image_backend",
+    "get_video_backend",
+    "get_audio_backend",
 ]
