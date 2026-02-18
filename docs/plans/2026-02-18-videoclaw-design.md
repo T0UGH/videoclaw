@@ -282,6 +282,7 @@ videoclaw/models/
 ```
 
 > 第一期优先支持：阿里系 (DashScope) + 字节系 (火山引擎)
+> **支持跨厂商混用**：图像、视频、音频可以分别选择不同厂商的服务
 
 > 注意：脚本分析由 Claude Code 直接完成，无需额外配置 LLM 后端。
 
@@ -399,34 +400,52 @@ my_video = "my_package:MyVideoBackend"
 
 ### 配置示例
 
-#### 阿里系 (DashScope)
+#### 单一厂商（全部用阿里或全部用字节）
 
 ```yaml
+# 全部用阿里系
 models:
   image:
     provider: dashscope
     model: wan2.6-t2i
-
   video:
     provider: dashscope
     model: wan2.6-i2v
-
   audio:
     provider: dashscope
     model: cosyvoice-v2
 ```
 
-#### 字节系 (火山引擎)
-
 ```yaml
+# 全部用字节系
 models:
   image:
     provider: volcengine
     model: seedream
+  video:
+    provider: volcengine
+    model: seedance
+  audio:
+    provider: volcengine
+    model: volcengine-tts
+```
+
+#### 跨厂商混用（推荐）
+
+```yaml
+# 图片用谷歌，视频用字节，音频用阿里
+models:
+  image:
+    provider: google
+    model: imagen-3.0
 
   video:
     provider: volcengine
     model: seedance
+
+  audio:
+    provider: dashscope
+    model: cosyvoice-v2
 ```
 
 ### 环境变量
@@ -438,6 +457,9 @@ DASHSCOPE_API_KEY=xxx
 # 字节系
 VOLCENGINE_AK=xxx
 VOLCENGINE_SK=xxx
+
+# 谷歌系
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
 ```
 
 ---
@@ -537,6 +559,7 @@ videoclaw-cli/
 |------|-----|--------|
 | 阿里 DashScope | `pip install dashscope` | 低 |
 | 字节 火山引擎 | `pip install volcengine` | 中 |
+| 谷歌 Vertex AI | `pip install google-cloud-aiplatform google-cloud-texttospeech` | 中 |
 
 ### 视频处理
 - FFmpeg
