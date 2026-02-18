@@ -270,13 +270,17 @@ videoclaw/storage/
 videoclaw/models/
 ├── base.py           # ModelBackend 基类
 ├── dashscope/       # 阿里云 DashScope
-│   ├── t2i.py       # Wanx T2I
-│   ├── i2v.py       # Wanx I2V
-│   └── tts.py       # CosyVoice
+│   ├── t2i.py       # wan2.6-t2i 文生图
+│   ├── i2v.py       # wan2.6-i2v 图生视频
+│   └── tts.py       # cosyvoice-v2 语音合成
+├── volcengine/      # 字节系 火山引擎
+│   ├── seedream.py  # seedream 图像生成
+│   └── seedance.py  # seedance 视频生成
 ├── openai/         # OpenAI (可选)
-├── seedance/       # Seedance (用户可扩展)
-└── mock/           # 测试用 Mock
+└── mock/            # 测试用 Mock
 ```
+
+> 第一期优先支持：阿里系 (DashScope) + 字节系 (火山引擎)
 
 > 注意：脚本分析由 Claude Code 直接完成，无需额外配置 LLM 后端。
 
@@ -394,6 +398,8 @@ my_video = "my_package:MyVideoBackend"
 
 ### 配置示例
 
+#### 阿里系 (DashScope)
+
 ```yaml
 models:
   image:
@@ -407,6 +413,30 @@ models:
   audio:
     provider: dashscope
     model: cosyvoice-v2
+```
+
+#### 字节系 (火山引擎)
+
+```yaml
+models:
+  image:
+    provider: volcengine
+    model: seedream
+
+  video:
+    provider: volcengine
+    model: seedance
+```
+
+### 环境变量
+
+```bash
+# 阿里系
+DASHSCOPE_API_KEY=xxx
+
+# 字节系
+VOLCENGINE_AK=xxx
+VOLCENGINE_SK=xxx
 ```
 
 ---
@@ -480,15 +510,31 @@ videoclaw-cli/
 
 ## 10. 外部依赖
 
-### AI 服务 (DashScope)
+### AI 服务
 
-> 注意：脚本分析由 Claude Code 直接完成，无需调用 DashScope LLM。
+> 注意：脚本分析由 Claude Code 直接完成，无需额外配置 LLM。
 
-| 服务 | 模型 | 用途 |
-|------|------|------|
-| 图像生成 | wan2.6-t2i, wan2.5-i2i | 资产/故事板 |
-| 视频生成 | wan2.6-i2v, wan2.6-r2v | 图生视频 |
-| 语音合成 | cosyvoice-v2 | TTS |
+#### 阿里系 (DashScope)
+
+| 服务 | 模型 | API | 认证方式 |
+|------|------|-----|----------|
+| 图像生成 | wan2.6-t2i, wan2.5-i2i | dashscope.aliyuncs.com | API Key |
+| 视频生成 | wan2.6-i2v | dashscope.aliyuncs.com | API Key |
+| 语音合成 | cosyvoice-v2 | dashscope.aliyuncs.com | API Key |
+
+#### 字节系 (火山引擎)
+
+| 服务 | 模型 | API | 认证方式 |
+|------|------|-----|----------|
+| 图像生成 | seedream | ark.cn-beijing.volces.com/api/v3/visual/seedream | AK/SK 签名 |
+| 视频生成 | seedance | ark.cn-beijing.volces.com/api/v3/seedance | AK/SK 签名 |
+
+### SDK 依赖
+
+| 厂商 | SDK | 复杂度 |
+|------|-----|--------|
+| 阿里 DashScope | `pip install dashscope` | 低 |
+| 字节 火山引擎 | `pip install volcengine` | 中 |
 
 ### 视频处理
 - FFmpeg
