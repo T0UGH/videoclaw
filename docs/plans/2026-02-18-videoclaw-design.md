@@ -122,7 +122,7 @@ video:create (主技能)
 ### 项目结构
 
 ```
-~/videoclaw-projects/
+~/videoclaw-projects/              # 用户目录，统一管理所有项目
 └── my-video-project/
     ├── .videoclaw/              # 工作目录
     │   ├── config.yaml          # 项目配置
@@ -226,6 +226,7 @@ videoclaw-cli/
 
 - **本地存储** - 必选，所有产物都会在本地保存一份
 - **云存储** - 可选，根据用户配置决定是否同步到云盘
+- **同步策略** - 实时双写，同时写入本地和云端
 
 用户可以通过配置文件选择是否启用云存储：
 
@@ -247,9 +248,17 @@ storage:
 
 ### 预览功能
 
-所有产物都会生成云盘临时访问链接供用户预览：
-- 图片：`oss://bucket/path.jpg` → `https://bucket.oss.com/path.jpg?签名`
-- 视频：同上
+根据存储类型不同，预览方式不同：
+
+- **有云存储**：生成云盘临时访问链接
+  - 图片：`oss://bucket/path.jpg` → `https://bucket.oss.com/path.jpg?签名`
+- **仅本地存储**：返回本地文件路径，Claude Code 使用 `open` 命令打开
+
+### 并发控制
+
+- **无锁设计** - 依赖 state.json 的状态判断
+- 同一项目同时只能运行一个任务
+- 通过状态判断防止并发：检查当前步骤状态是否为 `in_progress`
 
 ---
 
@@ -281,12 +290,6 @@ VIDEOCLAW_LOG_LEVEL=info
 - 启动时自动检测 FFmpeg 等系统依赖
 - 如未安装，提示用户是否自动安装
 - 用户确认后自动安装
-
-### 并发控制
-
-- **多项目并行** - 可以在不同工作目录运行多个 Claude Code 会话
-- **单项目单任务** - 同一工作目录同一时间只能运行一个任务
-- **项目锁** - 通过 `.videoclaw/.lock` 文件防止并发
 
 ---
 
@@ -427,6 +430,24 @@ models:
   audio:
     provider: dashscope
     model: cosyvoice-v2
+```
+
+### 模型返回格式
+
+模型调用后直接存文件，返回路径和元数据：
+
+```python
+@dataclass
+class GenerationResult:
+    local_path: Path           # 本地文件路径
+    cloud_url: str | None     # 云盘访问链接（如果配置了云存储）
+    metadata: dict             # 元数据（尺寸、时长、格式等）
+
+# 示例
+result = model.text_to_image(prompt="宇航员")
+# result.local_path = ~/videoclaw-projects/my-project/assets/character_20260218_143052_a1b2c3.png
+# result.cloud_url = https://bucket.oss.com/... (如果配置了云存储)
+# result.metadata = {"width": 1024, "height": 576, "format": "png"}
 ```
 
 ---
