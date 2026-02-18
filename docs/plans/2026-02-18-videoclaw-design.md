@@ -333,15 +333,46 @@ models:
     model: seedance-2.0
 ```
 
-#### 方式 2：外部插件
+#### 方式 2：外部插件（动态加载）
 用户可以在项目中创建 `models/` 目录，videoclaw 会自动加载：
 
 ```
 my-project/
 ├── .videoclaw/
 ├── models/              # 用户自定义模型
-│   └── my_backend.py
+│   ├── __init__.py
+│   └── my_video.py
 └── ...
+```
+
+实现方式（Python 动态 import）：
+
+```python
+import importlib.util
+import sys
+from pathlib import Path
+
+# 从项目目录动态加载模块
+def load_external_models(project_path: Path):
+    models_dir = project_path / "models"
+    if not models_dir.exists():
+        return
+
+    for file in models_dir.glob("*.py"):
+        if file.stem.startswith("_"):
+            continue
+        spec = importlib.util.spec_from_file_location(file.stem, file)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[file.stem] = module
+        spec.loader.exec_module(module)
+```
+
+#### 方式 3：Entry Points（更规范）
+通过 `pyproject.toml` 注册插件：
+
+```toml
+[project.entry-points."videoclaw.models"]
+my_video = "my_package:MyVideoBackend"
 ```
 
 ### 基类定义
