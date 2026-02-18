@@ -39,7 +39,7 @@
 └────────────────────────────────────────┘
 ```
 
-### 部署方式
+**部署方式**
 - Claude Code 和 CLI 都在同一台机器上
 - 同机部署，不需要管理服务进程
 
@@ -77,7 +77,7 @@ videoclaw/
 | `video:i2v` | 图生视频 |
 | `video:audio` | TTS/音效/背景音乐 |
 | `video:merge` | 合并视频片段 |
-| `video:preview` | 启动预览服务器或打开文件 |
+| `video:preview` | 预览图片/视频 |
 | `video:status` | 查看项目进度和状态 |
 | `video:config` | 配置 AI 模型、云存储等 |
 
@@ -96,11 +96,7 @@ videoclaw/
 > "第3帧用另外一个动作重新生成视频"
 > "调整第2段的配音"
 
----
-
-## 4. 子技能调用机制
-
-### 调用关系
+### 子技能调用关系
 
 ```
 video:create (主技能)
@@ -117,7 +113,7 @@ video:create (主技能)
 
 ---
 
-## 5. 状态管理
+## 4. 状态管理
 
 ### 项目结构
 
@@ -127,7 +123,7 @@ video:create (主技能)
     ├── .videoclaw/              # 工作目录
     │   ├── config.yaml          # 项目配置
     │   ├── state.json           # 状态跟踪
-    │   └── pipeline.log         # 日志
+    │   └── logs/                # 日志
     ├── script.txt               # 原始脚本
     ├── assets/                  # 角色/场景图片
     ├── storyboard/              # 故事板帧图片
@@ -181,79 +177,6 @@ audio/
 - **交还控制** - 重试失败后，将控制权交还给用户
 - **状态记录** - 失败状态会记录在 state.json 中
 
----
-
-## 6. CLI 架构
-
-### 模块设计
-
-```
-videoclaw-cli/
-├── cli/                    # 命令行入口
-│   ├── __main__.py
-│   └── commands/
-│       ├── init.py
-│       ├── analyze.py
-│       ├── assets.py
-│       ├── storyboard.py
-│       ├── i2v.py
-│       ├── audio.py
-│       ├── merge.py
-│       ├── preview.py
-│       └── config.py
-├── pipeline/               # 工作流编排
-│   ├── __init__.py
-│   └── orchestrator.py
-├── models/                # AI 模型调用（可插拔）
-│   ├── __init__.py
-│   ├── base.py
-│   ├── dashscope/         # 阿里云 DashScope
-│   └── mock/             # 测试用 Mock
-├── storage/              # 存储抽象层（可插拔）
-│   ├── __init__.py
-│   ├── base.py
-│   ├── oss.py            # 阿里云 OSS
-│   ├── s3.py             # AWS S3
-│   ├── minio.py          # MinIO
-│   └── local.py           # 本地存储
-├── renderer/             # 图片/视频渲染
-├── audio/                # TTS/音频合成
-├── ffmpeg/               # 视频处理
-└── utils/                # 工具函数
-```
-
-### 存储策略
-
-- **本地存储** - 必选，所有产物都会在本地保存一份
-- **云存储** - 可选，根据用户配置决定是否同步到云盘
-- **同步策略** - 实时双写，同时写入本地和云端
-
-用户可以通过配置文件选择是否启用云存储：
-
-```yaml
-storage:
-  local:
-    enabled: true
-    # base_dir 默认当前目录，可配置
-
-  cloud:
-    enabled: true  # 是否启用云存储
-    type: oss  # oss, s3, minio
-    config:
-      access_key: xxx
-      secret_key: xxx
-      bucket: xxx
-      endpoint: xxx
-```
-
-### 预览功能
-
-根据存储类型不同，预览方式不同：
-
-- **有云存储**：生成云盘临时访问链接
-  - 图片：`oss://bucket/path.jpg` → `https://bucket.oss.com/path.jpg?签名`
-- **仅本地存储**：返回本地文件路径，Claude Code 使用 `open` 命令打开
-
 ### 并发控制
 
 - **无锁设计** - 依赖 state.json 的状态判断
@@ -262,7 +185,7 @@ storage:
 
 ---
 
-## 配置管理
+## 5. 配置管理
 
 ### 配置文件优先级
 
@@ -293,22 +216,118 @@ VIDEOCLAW_LOG_LEVEL=info
 
 ---
 
-## 6. AI 模型抽象层
+## 6. 存储抽象层
+
+### 存储策略
+
+- **本地存储** - 必选，所有产物都会在本地保存一份
+- **云存储** - 可选，根据用户配置决定是否同步到云盘
+- **同步策略** - 实时双写，同时写入本地和云端
+
+### 配置示例
+
+```yaml
+storage:
+  local:
+    enabled: true
+
+  cloud:
+    enabled: true  # 是否启用云存储
+    type: oss  # oss, s3, minio
+    config:
+      access_key: xxx
+      secret_key: xxx
+      bucket: xxx
+      endpoint: xxx
+```
+
+### 预览功能
+
+根据存储类型不同，预览方式不同：
+
+- **有云存储**：生成云盘临时访问链接
+  - 图片：`oss://bucket/path.jpg` → `https://bucket.oss.com/path.jpg?签名`
+- **仅本地存储**：返回本地文件路径，Claude Code 使用 `open` 命令打开
+
+### 存储后端实现
+
+```
+videoclaw/storage/
+├── base.py           # StorageBackend 基类
+├── local.py          # 本地存储
+├── oss.py            # 阿里云 OSS
+├── s3.py             # AWS S3
+└── minio.py          # MinIO
+```
+
+---
+
+## 7. AI 模型抽象层
 
 ### 模型后端设计（可插拔）
 
 ```
-videoclaw/
-└── models/
-    ├── base.py           # ModelBackend 基类
-    ├── dashscope/       # 阿里云 DashScope
-    │   ├── llm.py       # Qwen-Max
-    │   ├── t2i.py       # Wanx T2I
-    │   ├── i2v.py       # Wanx I2V
-    │   └── tts.py       # CosyVoice
-    ├── openai/         # OpenAI (可选)
-    ├── seedance/       # Seedance (用户可扩展)
-    └── mock/           # 测试用 Mock
+videoclaw/models/
+├── base.py           # ModelBackend 基类
+├── dashscope/       # 阿里云 DashScope
+│   ├── llm.py       # Qwen-Max
+│   ├── t2i.py       # Wanx T2I
+│   ├── i2v.py       # Wanx I2V
+│   └── tts.py       # CosyVoice
+├── openai/         # OpenAI (可选)
+├── seedance/       # Seedance (用户可扩展)
+└── mock/           # 测试用 Mock
+```
+
+### 基类定义
+
+```python
+class ModelBackend(ABC):
+    @abstractmethod
+    def generate(self, prompt: str, **kwargs) -> bytes:
+        pass
+
+class LLMBackend(ModelBackend):
+    @abstractmethod
+    def chat(self, messages: list[dict]) -> str:
+        pass
+
+class ImageBackend(ModelBackend):
+    @abstractmethod
+    def text_to_image(self, prompt: str, **kwargs) -> ImageResult:
+        pass
+
+    @abstractmethod
+    def image_to_image(self, image: bytes, prompt: str, **kwargs) -> ImageResult:
+        pass
+
+class VideoBackend(ModelBackend):
+    @abstractmethod
+    def image_to_video(self, image: bytes, prompt: str, **kwargs) -> VideoResult:
+        pass
+
+class AudioBackend(ModelBackend):
+    @abstractmethod
+    def text_to_speech(self, text: str, voice: str, **kwargs) -> bytes:
+        pass
+```
+
+### 模型返回格式
+
+模型调用后直接存文件，返回路径和元数据：
+
+```python
+@dataclass
+class GenerationResult:
+    local_path: Path           # 本地文件路径
+    cloud_url: str | None     # 云盘访问链接（如果配置了云存储）
+    metadata: dict             # 元数据（尺寸、时长、格式等）
+
+# 示例
+result = model.text_to_image(prompt="宇航员")
+# result.local_path = ~/videoclaw-projects/my-project/assets/character_20260218_143052_a1b2c3.png
+# result.cloud_url = https://bucket.oss.com/... (如果配置了云存储)
+# result.metadata = {"width": 1024, "height": 576, "format": "png"}
 ```
 
 ### 用户扩展模型后端
@@ -355,7 +374,6 @@ import importlib.util
 import sys
 from pathlib import Path
 
-# 从项目目录动态加载模块
 def load_external_models(project_path: Path):
     models_dir = project_path / "models"
     if not models_dir.exists():
@@ -376,39 +394,6 @@ def load_external_models(project_path: Path):
 ```toml
 [project.entry-points."videoclaw.models"]
 my_video = "my_package:MyVideoBackend"
-```
-
-### 基类定义
-
-```python
-class ModelBackend(ABC):
-    @abstractmethod
-    def generate(self, prompt: str, **kwargs) -> bytes:
-        pass
-
-class LLMBackend(ModelBackend):
-    @abstractmethod
-    def chat(self, messages: list[dict]) -> str:
-        pass
-
-class ImageBackend(ModelBackend):
-    @abstractmethod
-    def text_to_image(self, prompt: str, **kwargs) -> ImageResult:
-        pass
-
-    @abstractmethod
-    def image_to_image(self, image: bytes, prompt: str, **kwargs) -> ImageResult:
-        pass
-
-class VideoBackend(ModelBackend):
-    @abstractmethod
-    def image_to_video(self, image: bytes, prompt: str, **kwargs) -> VideoResult:
-        pass
-
-class AudioBackend(ModelBackend):
-    @abstractmethod
-    def text_to_speech(self, text: str, voice: str, **kwargs) -> bytes:
-        pass
 ```
 
 ### 配置示例
@@ -432,27 +417,40 @@ models:
     model: cosyvoice-v2
 ```
 
-### 模型返回格式
+---
 
-模型调用后直接存文件，返回路径和元数据：
+## 8. CLI 架构
 
-```python
-@dataclass
-class GenerationResult:
-    local_path: Path           # 本地文件路径
-    cloud_url: str | None     # 云盘访问链接（如果配置了云存储）
-    metadata: dict             # 元数据（尺寸、时长、格式等）
+### 模块设计
 
-# 示例
-result = model.text_to_image(prompt="宇航员")
-# result.local_path = ~/videoclaw-projects/my-project/assets/character_20260218_143052_a1b2c3.png
-# result.cloud_url = https://bucket.oss.com/... (如果配置了云存储)
-# result.metadata = {"width": 1024, "height": 576, "format": "png"}
+```
+videoclaw-cli/
+├── cli/                    # 命令行入口
+│   ├── __main__.py
+│   └── commands/
+│       ├── init.py
+│       ├── analyze.py
+│       ├── assets.py
+│       ├── storyboard.py
+│       ├── i2v.py
+│       ├── audio.py
+│       ├── merge.py
+│       ├── preview.py
+│       └── config.py
+├── pipeline/               # 工作流编排
+│   ├── __init__.py
+│   └── orchestrator.py
+├── models/                # AI 模型调用（可插拔）
+├── storage/              # 存储抽象层（可插拔）
+├── renderer/             # 图片/视频渲染
+├── audio/                # TTS/音频合成
+├── ffmpeg/               # 视频处理
+└── utils/                # 工具函数
 ```
 
 ---
 
-## 7. CLI 架构
+## 9. 视频创建流程
 
 参照 LumenX 的 7 步流程：
 
@@ -487,7 +485,7 @@ result = model.text_to_image(prompt="宇航员")
 
 ---
 
-## 8. 外部依赖
+## 10. 外部依赖
 
 ### AI 服务 (DashScope)
 
@@ -503,7 +501,7 @@ result = model.text_to_image(prompt="宇航员")
 
 ---
 
-## 9. Skills 位置
+## 11. Skills 位置
 
 Skills 放在项目内的 `skills/` 目录，通过 CLI 工具打包安装：
 
@@ -521,7 +519,7 @@ videoclaw/
 
 ---
 
-## 10. 待定事项
+## 12. 待定事项
 
 - [ ] 测试策略
 - [ ] 项目清理策略（如何删除旧项目）
