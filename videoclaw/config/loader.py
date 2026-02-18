@@ -4,14 +4,15 @@ from __future__ import annotations
 import os
 import yaml
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class Config:
     """配置管理类"""
 
-    def __init__(self):
+    def __init__(self, project_path: Optional[Path] = None):
         self._config: Dict[str, Any] = {}
+        self._project_path = project_path
         self._load()
 
     def _load(self):
@@ -20,6 +21,15 @@ class Config:
         if global_config_path.exists():
             with open(global_config_path) as f:
                 self._config = yaml.safe_load(f) or {}
+
+        # 2. 加载项目配置（覆盖全局配置）
+        if self._project_path:
+            project_config_path = self._project_path / ".videoclaw" / "config.yaml"
+            if project_config_path.exists():
+                with open(project_config_path) as f:
+                    project_config = yaml.safe_load(f) or {}
+                    # 项目配置覆盖全局配置
+                    self._config.update(project_config)
 
     def get(self, key: str, default: Any = None) -> Any:
         """获取配置值"""

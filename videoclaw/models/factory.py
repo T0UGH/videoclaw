@@ -14,9 +14,6 @@ def get_image_backend(provider: str, model: str, config: Dict[str, Any]) -> Imag
     elif provider == "volcengine":
         from videoclaw.models.volcengine.seedream import VolcEngineSeedream
         return VolcEngineSeedream(model, config)
-    elif provider == "google":
-        from videoclaw.models.google.imagen import GoogleImagen
-        return GoogleImagen(model, config)
     elif provider == "mock":
         from videoclaw.models.mock.image import MockImageBackend
         return MockImageBackend(model, config)

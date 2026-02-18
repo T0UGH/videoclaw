@@ -15,6 +15,8 @@ class DashScopeTTS(AudioBackend):
     def __init__(self, model: str, config: Dict[str, Any]):
         self.model = model
         self.api_key = config.get("api_key")
+        if not self.api_key:
+            raise ValueError("DashScope API key is required. Set via config or environment variable DASHSCOPE_API_KEY")
 
     def text_to_speech(self, text: str, voice: str = "xiaoyuan", **kwargs) -> GenerationResult:
         timestamp = time.strftime("%Y%m%d_%H%M%S")

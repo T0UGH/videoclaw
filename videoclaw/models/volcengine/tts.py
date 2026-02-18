@@ -17,6 +17,8 @@ class VolcEngineTTS(AudioBackend):
         self.ak = config.get("ak")
         self.sk = config.get("sk")
         self.region = config.get("region", "cn-beijing")
+        if not self.ak or not self.sk:
+            raise ValueError("VolcEngine AK/SK is required. Set via config or environment variables VOLCENGINE_AK/VOLCENGINE_SK")
 
     def text_to_speech(self, text: str, voice: str = "xiaoyuan", **kwargs) -> GenerationResult:
         timestamp = time.strftime("%Y%m%d_%H%M%S")

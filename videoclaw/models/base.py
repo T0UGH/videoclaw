@@ -12,7 +12,7 @@ class GenerationResult:
     """生成结果"""
     local_path: Path
     cloud_url: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.metadata is None:

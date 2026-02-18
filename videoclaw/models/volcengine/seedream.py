@@ -17,6 +17,8 @@ class VolcEngineSeedream(ImageBackend):
         self.ak = config.get("ak")
         self.sk = config.get("sk")
         self.region = config.get("region", "cn-beijing")
+        if not self.ak or not self.sk:
+            raise ValueError("VolcEngine AK/SK is required. Set via config or environment variables VOLCENGINE_AK/VOLCENGINE_SK")
 
     def text_to_image(self, prompt: str, **kwargs) -> GenerationResult:
         # 生成唯一文件名

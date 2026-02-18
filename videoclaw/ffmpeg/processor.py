@@ -6,11 +6,28 @@ from pathlib import Path
 from typing import List, Optional
 
 
+class FFmpegError(Exception):
+    """FFmpeg 处理错误"""
+    pass
+
+
 class FFmpegProcessor:
     """FFmpeg 视频处理器"""
 
     def __init__(self, ffmpeg_path: str = "ffmpeg"):
         self.ffmpeg_path = ffmpeg_path
+
+    def _run_command(self, cmd: List[str]) -> None:
+        """执行 FFmpeg 命令"""
+        try:
+            result = subprocess.run(
+                cmd,
+                check=True,
+                capture_output=True,
+                text=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise FFmpegError(f"FFmpeg 执行失败: {e.stderr}")
 
     def merge(self, input_files: List[str], output_file: str) -> Path:
         """合并多个视频文件"""
@@ -34,7 +51,7 @@ class FFmpegProcessor:
             str(output_path)
         ]
 
-        subprocess.run(cmd, check=True, capture_output=True)
+        self._run_command(cmd)
         list_file.unlink()
 
         return output_path
@@ -51,5 +68,5 @@ class FFmpegProcessor:
             "-y",
             str(output_path)
         ]
-        subprocess.run(cmd, check=True, capture_output=True)
+        self._run_command(cmd)
         return output_path
