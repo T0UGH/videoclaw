@@ -8,6 +8,8 @@
 
 **核心理念**: "极客风格" - AI 原生工具链，Claude Code 通过 Skills 调用 CLI 完成工作流。
 
+**技术栈**: Python 3.11+, uv (包管理), Click (CLI), Pydantic, PyYAML
+
 ---
 
 ## 2. 整体架构
@@ -302,7 +304,44 @@ videoclaw/
     │   ├── i2v.py       # Wanx I2V
     │   └── tts.py       # CosyVoice
     ├── openai/         # OpenAI (可选)
+    ├── seedance/       # Seedance (用户可扩展)
     └── mock/           # 测试用 Mock
+```
+
+### 用户扩展模型后端
+
+用户可以通过两种方式扩展：
+
+#### 方式 1：内置后端
+在 `videoclaw/models/` 目录下添加新后端：
+
+```python
+# videoclaw/models/seedance.py
+from videoclaw.models.base import VideoBackend
+
+class SeedanceVideoBackend(VideoBackend):
+    def image_to_video(self, image: bytes, prompt: str, **kwargs) -> VideoResult:
+        # 实现 Seedance API 调用
+        pass
+```
+
+配置使用：
+```yaml
+models:
+  video:
+    provider: seedance
+    model: seedance-2.0
+```
+
+#### 方式 2：外部插件
+用户可以在项目中创建 `models/` 目录，videoclaw 会自动加载：
+
+```
+my-project/
+├── .videoclaw/
+├── models/              # 用户自定义模型
+│   └── my_backend.py
+└── ...
 ```
 
 ### 基类定义
