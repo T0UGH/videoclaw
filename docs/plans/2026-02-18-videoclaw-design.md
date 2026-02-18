@@ -1,0 +1,436 @@
+# Videoclaw Design - AI 视频创作工具
+
+## 1. 项目概述
+
+**项目名称**: videoclaw
+
+**项目定位**: 一个给 Claude Code 用的 AI 视频创作 CLI 工具。人类通过 Happy + Claude Code 对话，Claude Code 调用 videoclaw CLI 执行实际任务。
+
+**核心理念**: "极客风格" - AI 原生工具链，Claude Code 通过 Skills 调用 CLI 完成工作流。
+
+---
+
+## 2. 整体架构
+
+```
+┌────────────────────────────────────────┐
+│  人类 ←→ Happy ←→ Claude Code          │
+│              │                         │
+│              ├── Skills (提示词/工作流)  │
+│              └── Subagents (任务编排)   │
+└────────────────────────────────────────┘
+                    │
+                    ▼
+┌────────────────────────────────────────┐
+│  videoclaw CLI (Python)               │
+│  - 命令行工具                          │
+│  - 存储抽象层                         │
+│  - AI 模型调用                        │
+│  - 视频处理                           │
+└────────────────────────────────────────┘
+                    │
+                    ▼
+┌────────────────────────────────────────┐
+│  外部服务                              │
+│  - DashScope (LLM/图像/视频/TTS)       │
+│  - 云存储 (用户可选 OSS/S3/MinIO)      │
+└────────────────────────────────────────┘
+```
+
+### 部署方式
+- Claude Code 和 CLI 都在同一台机器上
+- 同机部署，不需要管理服务进程
+
+---
+
+## 3. Skills 设计
+
+### 技能体系
+
+```
+videoclaw/
+└── skills/
+    ├── video:init          # 初始化项目
+    ├── video:create       # 创建视频（主工作流）
+    ├── video:analyze      # 脚本分析
+    ├── video:assets       # 资产生成
+    ├── video:storyboard  # 故事板渲染
+    ├── video:i2v          # 图生视频
+    ├── video:audio        # 音频生成
+    ├── video:merge        # 视频合并
+    ├── video:preview      # 预览图片/视频
+    ├── video:status       # 查看进度
+    └── video:config       # 配置管理
+```
+
+### 技能职责
+
+| Skill | 职责 |
+|-------|------|
+| `video:init` | 初始化项目目录，生成配置文件 |
+| `video:create` | 编排完整视频创建流程（一句话创建） |
+| `video:analyze` | 调用 LLM 分析脚本，提取角色/场景/帧 |
+| `video:assets` | 生成角色和场景图片 |
+| `video:storyboard` | 生成故事板帧图片 |
+| `video:i2v` | 图生视频 |
+| `video:audio` | TTS/音效/背景音乐 |
+| `video:merge` | 合并视频片段 |
+| `video:preview` | 启动预览服务器或打开文件 |
+| `video:status` | 查看项目进度和状态 |
+| `video:config` | 配置 AI 模型、云存储等 |
+
+### 使用模式
+
+#### 模式 1: 一句话创建（推荐新手）
+用户只需要说：
+> "帮我做一个关于宇航员在火星上发现外星遗迹的短视频"
+
+然后 Claude Code 自动完成所有步骤。
+
+#### 模式 2: 逐步控制（高级用户）
+用户可以分步控制：
+> "先帮我分析这个脚本"
+> "生成角色图片"
+> "第3帧用另外一个动作重新生成视频"
+> "调整第2段的配音"
+
+---
+
+## 4. 子技能调用机制
+
+### 调用关系
+
+```
+video:create (主技能)
+    │
+    ├── 内部调用 CLI → video:analyze
+    ├── 内部调用 CLI → video:assets
+    ├── 内部调用 CLI → video:storyboard
+    ├── 内部调用 CLI → video:i2v
+    ├── 内部调用 CLI → video:audio
+    └── 内部调用 CLI → video:merge
+```
+
+用户也可以直接调用子技能进行细粒度控制。
+
+---
+
+## 5. 状态管理
+
+### 项目结构
+
+```
+~/videoclaw-projects/
+└── my-video-project/
+    ├── .videoclaw/              # 工作目录
+    │   ├── config.yaml          # 项目配置
+    │   ├── state.json           # 状态跟踪
+    │   └── pipeline.log         # 日志
+    ├── script.txt               # 原始脚本
+    ├── assets/                  # 角色/场景图片
+    ├── storyboard/              # 故事板帧图片
+    ├── videos/                  # 生成的视频片段
+    └── audio/                   # 音频文件
+```
+
+### state.json 示例
+
+```json
+{
+  "project_id": "abc123",
+  "status": "rendering_storyboard",
+  "steps": {
+    "analyzed": { "status": "completed", "output": {...} },
+    "assets": { "status": "completed", "output": {...} },
+    "storyboard": { "status": "in_progress", "current_frame": 3, "total_frames": 10 },
+    "i2v": { "status": "pending" },
+    "audio": { "status": "pending" },
+    "merge": { "status": "pending" }
+  },
+  "resume_token": "step_3_frame_5"
+}
+```
+
+### 关键特性
+
+1. **可恢复** - 中断后可以从上一步继续
+2. **幂等** - 重复执行不会产生副作用
+3. **进度追踪** - 每步状态实时更新
+
+### 产物命名
+
+产物文件使用时间戳 + 随机数命名：
+
+```
+assets/
+├── character_20260218_143052_a1b2c3.png
+├── scene_20260218_143052_d4e5f6.png
+storyboard/
+├── frame_001_20260218_143052_g7h8i9.png
+videos/
+├── frame_001_20260218_143052_j0k1l2.mp4
+audio/
+├── dialogue_001_20260218_143052_m3n4o5.mp3
+```
+
+### 错误处理
+
+- **自动重试** - 失败自动重试 2 次
+- **交还控制** - 重试失败后，将控制权交还给用户
+- **状态记录** - 失败状态会记录在 state.json 中
+
+---
+
+## 6. CLI 架构
+
+### 模块设计
+
+```
+videoclaw-cli/
+├── cli/                    # 命令行入口
+│   ├── __main__.py
+│   └── commands/
+│       ├── init.py
+│       ├── analyze.py
+│       ├── assets.py
+│       ├── storyboard.py
+│       ├── i2v.py
+│       ├── audio.py
+│       ├── merge.py
+│       ├── preview.py
+│       └── config.py
+├── pipeline/               # 工作流编排
+│   ├── __init__.py
+│   └── orchestrator.py
+├── models/                # AI 模型调用（可插拔）
+│   ├── __init__.py
+│   ├── base.py
+│   ├── dashscope/         # 阿里云 DashScope
+│   └── mock/             # 测试用 Mock
+├── storage/              # 存储抽象层（可插拔）
+│   ├── __init__.py
+│   ├── base.py
+│   ├── oss.py            # 阿里云 OSS
+│   ├── s3.py             # AWS S3
+│   ├── minio.py          # MinIO
+│   └── local.py           # 本地存储
+├── renderer/             # 图片/视频渲染
+├── audio/                # TTS/音频合成
+├── ffmpeg/               # 视频处理
+└── utils/                # 工具函数
+```
+
+### 存储策略
+
+- **本地存储** - 必选，所有产物都会在本地保存一份
+- **云存储** - 可选，根据用户配置决定是否同步到云盘
+
+用户可以通过配置文件选择是否启用云存储：
+
+```yaml
+storage:
+  local:
+    enabled: true
+    # base_dir 默认当前目录，可配置
+
+  cloud:
+    enabled: true  # 是否启用云存储
+    type: oss  # oss, s3, minio
+    config:
+      access_key: xxx
+      secret_key: xxx
+      bucket: xxx
+      endpoint: xxx
+```
+
+### 预览功能
+
+所有产物都会生成云盘临时访问链接供用户预览：
+- 图片：`oss://bucket/path.jpg` → `https://bucket.oss.com/path.jpg?签名`
+- 视频：同上
+
+---
+
+## 配置管理
+
+### 配置文件优先级
+
+1. **环境变量** - 最高优先级
+2. **全局配置** - `~/.videoclaw/config.yaml`
+3. **项目配置** - `./.videoclaw/config.yaml`
+
+### 环境变量命名
+
+```bash
+# DashScope
+DASHSCOPE_API_KEY=xxx
+
+# 存储
+VIDEOCLAW_STORAGE_TYPE=oss
+VIDEOCLAW_OSS_ACCESS_KEY=xxx
+VIDEOCLAW_OSS_SECRET_KEY=xxx
+
+# 其他
+VIDEOCLAW_LOG_LEVEL=info
+```
+
+### 系统依赖检测
+
+- 启动时自动检测 FFmpeg 等系统依赖
+- 如未安装，提示用户是否自动安装
+- 用户确认后自动安装
+
+### 并发控制
+
+- **多项目并行** - 可以在不同工作目录运行多个 Claude Code 会话
+- **单项目单任务** - 同一工作目录同一时间只能运行一个任务
+- **项目锁** - 通过 `.videoclaw/.lock` 文件防止并发
+
+---
+
+## 6. AI 模型抽象层
+
+### 模型后端设计（可插拔）
+
+```
+videoclaw/
+└── models/
+    ├── base.py           # ModelBackend 基类
+    ├── dashscope/       # 阿里云 DashScope
+    │   ├── llm.py       # Qwen-Max
+    │   ├── t2i.py       # Wanx T2I
+    │   ├── i2v.py       # Wanx I2V
+    │   └── tts.py       # CosyVoice
+    ├── openai/         # OpenAI (可选)
+    └── mock/           # 测试用 Mock
+```
+
+### 基类定义
+
+```python
+class ModelBackend(ABC):
+    @abstractmethod
+    def generate(self, prompt: str, **kwargs) -> bytes:
+        pass
+
+class LLMBackend(ModelBackend):
+    @abstractmethod
+    def chat(self, messages: list[dict]) -> str:
+        pass
+
+class ImageBackend(ModelBackend):
+    @abstractmethod
+    def text_to_image(self, prompt: str, **kwargs) -> ImageResult:
+        pass
+
+    @abstractmethod
+    def image_to_image(self, image: bytes, prompt: str, **kwargs) -> ImageResult:
+        pass
+
+class VideoBackend(ModelBackend):
+    @abstractmethod
+    def image_to_video(self, image: bytes, prompt: str, **kwargs) -> VideoResult:
+        pass
+
+class AudioBackend(ModelBackend):
+    @abstractmethod
+    def text_to_speech(self, text: str, voice: str, **kwargs) -> bytes:
+        pass
+```
+
+### 配置示例
+
+```yaml
+models:
+  llm:
+    provider: dashscope
+    model: qwen-max
+
+  image:
+    provider: dashscope
+    model: wan2.6-t2i
+
+  video:
+    provider: dashscope
+    model: wan2.6-i2v
+
+  audio:
+    provider: dashscope
+    model: cosyvoice-v2
+```
+
+---
+
+## 7. CLI 架构
+
+参照 LumenX 的 7 步流程：
+
+```
+文本输入 → 脚本分析 → 资产生成 → 故事板生成 → 视频生成 → 音频生成 → 视频合成
+```
+
+### Step 1: 脚本分析
+- 使用 LLM (Qwen-Max) 分析文本
+- 提取：角色、场景、道具、故事板帧
+
+### Step 2: 资产生成
+- 使用 T2I 模型生成角色头像、全身照、三视图
+- 生成场景背景图
+
+### Step 3: 故事板生成
+- 使用 T2I/I2I 模型生成帧图片
+
+### Step 4: 图生视频
+- 使用 I2V 模型生成视频片段
+
+### Step 5: 音频生成
+- TTS 语音合成
+- SFX 音效
+- BGM 背景音乐
+
+### Step 6: 视频选择
+- 为每帧选择特定的视频变体
+
+### Step 7: 视频合并
+- 使用 FFmpeg 合并视频片段
+
+---
+
+## 8. 外部依赖
+
+### AI 服务 (DashScope)
+
+| 服务 | 模型 | 用途 |
+|------|------|------|
+| LLM | qwen-max | 脚本分析 |
+| 图像生成 | wan2.6-t2i, wan2.5-i2i | 资产/故事板 |
+| 视频生成 | wan2.6-i2v, wan2.6-r2v | 图生视频 |
+| 语音合成 | cosyvoice-v2 | TTS |
+
+### 视频处理
+- FFmpeg
+
+---
+
+## 9. Skills 位置
+
+Skills 放在项目内的 `skills/` 目录，通过 CLI 工具打包安装：
+
+```
+videoclaw/
+├── skills/
+│   ├── video-init.md
+│   ├── video-create.md
+│   ├── video-analyze.md
+│   └── ...
+└── cli/
+```
+
+用户可以通过 `videoclaw skills install` 安装到 Claude Code 的 skills 目录。
+
+---
+
+## 10. 待定事项
+
+- [ ] 测试策略
+- [ ] 项目清理策略（如何删除旧项目）
