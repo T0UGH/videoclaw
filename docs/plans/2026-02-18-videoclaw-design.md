@@ -196,7 +196,7 @@ audio/
 ### 环境变量命名
 
 ```bash
-# DashScope
+# DashScope (仅用于图像/视频/音频生成)
 DASHSCOPE_API_KEY=xxx
 
 # 存储
@@ -270,7 +270,6 @@ videoclaw/storage/
 videoclaw/models/
 ├── base.py           # ModelBackend 基类
 ├── dashscope/       # 阿里云 DashScope
-│   ├── llm.py       # Qwen-Max
 │   ├── t2i.py       # Wanx T2I
 │   ├── i2v.py       # Wanx I2V
 │   └── tts.py       # CosyVoice
@@ -279,17 +278,14 @@ videoclaw/models/
 └── mock/           # 测试用 Mock
 ```
 
+> 注意：脚本分析由 Claude Code 直接完成，无需额外配置 LLM 后端。
+
 ### 基类定义
 
 ```python
 class ModelBackend(ABC):
     @abstractmethod
     def generate(self, prompt: str, **kwargs) -> bytes:
-        pass
-
-class LLMBackend(ModelBackend):
-    @abstractmethod
-    def chat(self, messages: list[dict]) -> str:
         pass
 
 class ImageBackend(ModelBackend):
@@ -400,10 +396,6 @@ my_video = "my_package:MyVideoBackend"
 
 ```yaml
 models:
-  llm:
-    provider: dashscope
-    model: qwen-max
-
   image:
     provider: dashscope
     model: wan2.6-t2i
@@ -459,8 +451,9 @@ videoclaw-cli/
 ```
 
 ### Step 1: 脚本分析
-- 使用 LLM (Qwen-Max) 分析文本
+- 由 Claude Code 直接完成（Claude Code 本身就是 LLM）
 - 提取：角色、场景、道具、故事板帧
+- 无需额外配置 LLM 后端
 
 ### Step 2: 资产生成
 - 使用 T2I 模型生成角色头像、全身照、三视图
@@ -489,9 +482,10 @@ videoclaw-cli/
 
 ### AI 服务 (DashScope)
 
+> 注意：脚本分析由 Claude Code 直接完成，无需调用 DashScope LLM。
+
 | 服务 | 模型 | 用途 |
 |------|------|------|
-| LLM | qwen-max | 脚本分析 |
 | 图像生成 | wan2.6-t2i, wan2.5-i2i | 资产/故事板 |
 | 视频生成 | wan2.6-i2v, wan2.6-r2v | 图生视频 |
 | 语音合成 | cosyvoice-v2 | TTS |
