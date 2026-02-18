@@ -1,0 +1,36 @@
+[project]
+name = "videoclaw"
+version = "0.1.0"
+description = "AI 视频创作 CLI 工具，给 Claude Code 用"
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.1.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[project.scripts]
+videoclaw = "videoclaw.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["videoclaw*"]
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.black]
+target-version = ["py39"]
