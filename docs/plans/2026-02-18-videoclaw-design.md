@@ -275,7 +275,8 @@ videoclaw/models/
 │   └── tts.py       # cosyvoice-v2 语音合成
 ├── volcengine/      # 字节系 火山引擎
 │   ├── seedream.py  # seedream 图像生成
-│   └── seedance.py  # seedance 视频生成
+│   ├── seedance.py  # seedance 视频生成
+│   └── tts.py       # volcengine 语音合成
 ├── openai/         # OpenAI (可选)
 └── mock/            # 测试用 Mock
 ```
@@ -528,6 +529,7 @@ videoclaw-cli/
 |------|------|-----|----------|
 | 图像生成 | seedream | ark.cn-beijing.volces.com/api/v3/visual/seedream | AK/SK 签名 |
 | 视频生成 | seedance | ark.cn-beijing.volces.com/api/v3/seedance | AK/SK 签名 |
+| 语音合成 | volcengine-tts | volcengine.com/docs/67009 | AK/SK 签名 |
 
 ### SDK 依赖
 
