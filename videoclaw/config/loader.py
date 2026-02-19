@@ -33,12 +33,24 @@ class Config:
 
     def get(self, key: str, default: Any = None) -> Any:
         """获取配置值"""
-        # 检查环境变量
+        # 1. 检查环境变量 (最高优先级)
+        # 映射常用环境变量
+        env_mappings = {
+            "dashscope.api_key": "DASHSCOPE_API_KEY",
+            "volcengine.ak": "VOLCENGINE_AK",
+            "volcengine.sk": "VOLCENGINE_SK",
+        }
+        if key in env_mappings:
+            env_key = env_mappings[key]
+            if env_key in os.environ:
+                return os.environ[env_key]
+
+        # 通用的环境变量映射
         env_key = f"VIDEOCLAW_{key.upper().replace('.', '_')}"
         if env_key in os.environ:
             return os.environ[env_key]
 
-        # 返回配置值
+        # 2. 返回配置值
         keys = key.split(".")
         value = self._config
         for k in keys:
