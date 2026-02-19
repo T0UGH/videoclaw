@@ -39,6 +39,7 @@ class Config:
             "dashscope.api_key": "DASHSCOPE_API_KEY",
             "volcengine.ak": "VOLCENGINE_AK",
             "volcengine.sk": "VOLCENGINE_SK",
+            "ark.api_key": "ARK_API_KEY",
         }
         if key in env_mappings:
             env_key = env_mappings[key]
