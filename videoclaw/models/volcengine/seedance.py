@@ -72,7 +72,7 @@ class VolcEngineSeedance(VideoBackend):
 
                 if task.status == "succeeded":
                     # 下载视频
-                    video_url = task.video.url
+                    video_url = task.content.video_url
                     import requests
                     video_data = requests.get(video_url).content
                     local_path.write_bytes(video_data)
