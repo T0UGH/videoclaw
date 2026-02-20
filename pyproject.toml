@@ -20,6 +20,7 @@ dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
 ]
+gemini = ["google-genai>=0.3.0"]
 
 [project.scripts]
 videoclaw = "videoclaw.cli.main:main"
