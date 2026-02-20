@@ -16,7 +16,7 @@ description: Use when user wants to create a complete video from a description i
 ## 执行流程
 
 1. 调用 `videoclaw init <project-name>` 初始化项目
-2. 调用 `videoclaw analyze --script "<用户描述>" --project <project-name>` 分析脚本
+2. 直接使用 Claude 能力分析脚本，生成 JSON 并写入 `<project>/.videoclaw/state.json` 的 `steps.analyze.output` 字段
 3. 调用 `videoclaw assets --project <project-name>` 生成资产
 4. 调用 `videoclaw storyboard --project <project-name>` 生成故事板
 5. 调用 `videoclaw i2v --project <project-name>` 图生视频
@@ -42,7 +42,14 @@ description: Use when user wants to create a complete video from a description i
 
 Claude Code:
 1. videoclaw init mars-video
-2. videoclaw analyze --script "宇航员在火星上发现外星遗迹" --project mars-video
+2. 直接分析脚本，生成 JSON：
+   {
+     "script": "宇航员在火星上发现外星遗迹",
+     "characters": [...],
+     "scenes": [...],
+     "frames": [...]
+   }
+   保存到 .videoclaw/state.json
 3. videoclaw assets --project mars-video
 4. videoclaw storyboard --project mars-video
 5. videoclaw i2v --project mars-video
@@ -58,3 +65,28 @@ Claude Code:
 videoclaw config --project mars-video --set models.image.provider=dashscope
 videoclaw config --project mars-video --set models.video.provider=volcengine
 ```
+
+## 分析结果格式
+
+分析结果直接写入 `<project>/.videoclaw/state.json` 的 `steps.analyze.output` 字段：
+
+```json
+{
+  "script": "原始脚本描述",
+  "characters": [
+    {"name": "角色名", "description": "角色描述", "appearance": "外观描述"}
+  ],
+  "scenes": [
+    {"name": "场景名", "description": "场景描述", "time": "时间"}
+  ],
+  "frames": [
+    {
+      "id": 1,
+      "scene": "场景名",
+      "description": "画面描述",
+      "duration": 5
+    }
+  ]
+}
+```
+
