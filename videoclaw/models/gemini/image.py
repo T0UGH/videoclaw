@@ -33,11 +33,12 @@ class GeminiImageBackend(ImageBackend):
             )
 
         # 支持多种配置格式：Config对象或普通字典
-        # 首先检查环境变量 GOOGLE_API_KEY
+        # 首先检查环境变量 GOOGLE_API_KEY (最高优先级)
         self.api_key = os.environ.get("GOOGLE_API_KEY")
         if not self.api_key:
-            # 然后检查 config 传入的 api_key
-            self.api_key = config.get("api_key")
+            # 然后检查 config 传入的 api_key 或 google.api_key
+            # 兼容两种格式: config.get("api_key") 或 config.get("google.api_key")
+            self.api_key = config.get("api_key") or config.get("google.api_key")
 
         if not self.api_key:
             raise ValueError(

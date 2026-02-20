@@ -40,6 +40,7 @@ class Config:
             "volcengine.ak": "VOLCENGINE_AK",
             "volcengine.sk": "VOLCENGINE_SK",
             "ark.api_key": "ARK_API_KEY",
+            "google.api_key": "GOOGLE_API_KEY",
         }
         if key in env_mappings:
             env_key = env_mappings[key]
