@@ -9,6 +9,9 @@ from typing import Any, Dict
 from volcenginesdkarkruntime import Ark
 
 from videoclaw.models.base import GenerationResult, ImageBackend
+from videoclaw.utils.logging import get_logger
+
+logger = get_logger(name="volcengine.seedream")
 
 
 class VolcEngineSeedream(ImageBackend):
@@ -31,6 +34,8 @@ class VolcEngineSeedream(ImageBackend):
         )
 
     def text_to_image(self, prompt: str, **kwargs) -> GenerationResult:
+        logger.info(f"开始生成图片，prompt: {prompt[:50]}...")
+
         # 生成唯一文件名
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         hash_suffix = hashlib.md5(prompt.encode()).hexdigest()[:6]
@@ -38,20 +43,26 @@ class VolcEngineSeedream(ImageBackend):
         local_path = Path.home() / "videoclaw-projects" / "temp" / filename
         local_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # 调用 Seedream API
-        response = self.client.images.generate(
-            model=self.model,
-            prompt=prompt,
-            size=kwargs.get("size", "2K"),
-            response_format="url",
-            watermark=kwargs.get("watermark", False),
-        )
+        try:
+            # 调用 Seedream API
+            response = self.client.images.generate(
+                model=self.model,
+                prompt=prompt,
+                size=kwargs.get("size", "2K"),
+                response_format="url",
+                watermark=kwargs.get("watermark", False),
+            )
 
-        # 下载图片
-        image_url = response.data[0].url
-        import requests
-        image_data = requests.get(image_url).content
-        local_path.write_bytes(image_data)
+            # 下载图片
+            image_url = response.data[0].url
+            import requests
+            image_data = requests.get(image_url).content
+            local_path.write_bytes(image_data)
+
+            logger.info(f"图片生成成功: {local_path}")
+        except Exception as e:
+            logger.error(f"图片生成失败: {e}")
+            raise
 
         return GenerationResult(
             local_path=local_path,

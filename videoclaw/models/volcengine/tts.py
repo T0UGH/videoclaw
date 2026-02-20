@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Any, Dict
 
 from videoclaw.models.base import AudioBackend, GenerationResult
+from videoclaw.utils.logging import get_logger
+
+logger = get_logger(name="volcengine.tts")
 
 
 class VolcEngineTTS(AudioBackend):
@@ -21,6 +24,8 @@ class VolcEngineTTS(AudioBackend):
             raise ValueError("VolcEngine AK/SK is required. Set via config or environment variables VOLCENGINE_AK/VOLCENGINE_SK")
 
     def text_to_speech(self, text: str, voice: str = "xiaoyuan", **kwargs) -> GenerationResult:
+        logger.info(f"开始生成语音，text: {text[:50]}...")
+
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         hash_suffix = hashlib.md5(text.encode()).hexdigest()[:6]
         filename = f"tts_{timestamp}_{hash_suffix}.mp3"

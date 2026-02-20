@@ -9,6 +9,9 @@ from typing import Any, Dict
 from volcenginesdkarkruntime import Ark
 
 from videoclaw.models.base import GenerationResult, VideoBackend
+from videoclaw.utils.logging import get_logger
+
+logger = get_logger(name="volcengine.seedance")
 
 
 class VolcEngineSeedance(VideoBackend):
@@ -30,6 +33,8 @@ class VolcEngineSeedance(VideoBackend):
         )
 
     def image_to_video(self, image: bytes, prompt: str, **kwargs) -> GenerationResult:
+        logger.info(f"开始生成视频，prompt: {prompt[:50]}...")
+
         # 生成唯一文件名
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         hash_suffix = hashlib.md5(prompt.encode()).hexdigest()[:6]
@@ -53,6 +58,7 @@ class VolcEngineSeedance(VideoBackend):
 
         try:
             # Step 1: 创建异步任务 (使用 base64 data URL)
+            logger.debug(f"创建视频生成任务，model: {self.model}")
             response = self.client.content_generation.tasks.create(
                 model=self.model,
                 content=[
@@ -66,6 +72,7 @@ class VolcEngineSeedance(VideoBackend):
             )
 
             task_id = response.id
+            logger.info(f"视频生成任务已创建，task_id: {task_id}")
 
             # Step 2: 轮询等待任务完成
             max_wait = kwargs.get("max_wait", 300)  # 默认 5 分钟
@@ -76,10 +83,12 @@ class VolcEngineSeedance(VideoBackend):
 
             while time_module.time() - start_time < max_wait:
                 task = self.client.content_generation.tasks.get(task_id=task_id)
+                logger.debug(f"任务状态: {task.status}")
 
                 if task.status == "succeeded":
                     # 下载视频
                     video_url = task.content.video_url
+                    logger.info(f"视频生成成功，下载视频...")
                     import requests
                     video_data = requests.get(video_url).content
                     local_path.write_bytes(video_data)
@@ -96,13 +105,19 @@ class VolcEngineSeedance(VideoBackend):
                     )
                 elif task.status == "failed":
                     error_msg = task.error.message if task.error else "Unknown error"
+                    logger.error(f"视频生成失败: {error_msg}")
                     raise RuntimeError(f"Video generation failed: {error_msg}")
                 else:
                     # queued 或 running，继续等待
+                    logger.debug(f"等待视频生成中...")
                     time_module.sleep(poll_interval)
 
+            logger.error(f"视频生成超时: {max_wait} 秒")
             raise TimeoutError(f"Video generation timeout after {max_wait} seconds")
 
+        except Exception as e:
+            logger.error(f"视频生成异常: {e}")
+            raise
         finally:
             # 清理临时图片文件
             import os
