@@ -9,6 +9,7 @@ from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_audio_backend
 from videoclaw.utils.logging import get_logger
+from videoclaw.storage.uploader import upload_to_cloud
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -84,6 +85,16 @@ def audio(project: str, provider: str):
             })
             click.echo(f" 已保存: {dest_path.name}")
 
+            # 上传到云盘
+            cloud_url = upload_to_cloud(
+                dest_path,
+                f"videoclaw/{project}/audio/{dest_path.name}",
+                config,
+                project
+            )
+            if cloud_url:
+                click.echo(f" 云盘链接: {cloud_url}")
+
     # 生成背景音乐
     click.echo("\n生成背景音乐...", nl=False)
     bgm_result = audio_backend.generate_bgm("科幻 悬疑 友情", duration=30)
@@ -93,6 +104,16 @@ def audio(project: str, provider: str):
         shutil.copy(bgm_result.local_path, bgm_path)
         result["bgm"] = str(bgm_path)
         click.echo(f" 已保存: bgm.mp3")
+
+        # 上传到云盘
+        cloud_url = upload_to_cloud(
+            bgm_path,
+            f"videoclaw/{project}/audio/{bgm_path.name}",
+            config,
+            project
+        )
+        if cloud_url:
+            click.echo(f" 云盘链接: {cloud_url}")
 
     state.update_step("audio", "completed", result)
     state.set_status("audio_generated")
