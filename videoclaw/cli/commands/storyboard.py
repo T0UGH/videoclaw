@@ -4,7 +4,9 @@ from __future__ import annotations
 import click
 import shutil
 from pathlib import Path
+from io import BytesIO
 
+from PIL import Image
 from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_image_backend
@@ -51,6 +53,21 @@ def storyboard(project: str, provider: str):
     analyze_data = analyze_step.get("output", {})
     frames = analyze_data.get("frames", [])
 
+    # 获取角色图片（用于保持人物一致性）
+    assets_data = assets_step.get("output", {})
+    character_images = assets_data.get("characters", {})
+    character_bytes = {}
+    for char_name, char_path in character_images.items():
+        if char_path and Path(char_path).exists():
+            with Image.open(char_path) as img:
+                # 转换为 RGB 模式
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                character_bytes[char_name] = buf.getvalue()
+            logger.info(f"加载角色图片: {char_name}")
+
     logger.info(f"开始生成 {len(frames)} 个故事板帧")
 
     # 获取模型
@@ -74,7 +91,17 @@ def storyboard(project: str, provider: str):
 
         # 构建提示词
         prompt = f"电影镜头，{camera}，{frame_desc}，高清，电影感"
-        gen_result = image_backend.text_to_image(prompt)
+
+        # 使用角色图片进行图生图（如果存在）
+        if character_bytes:
+            # 优先使用第一个角色图片作为参考
+            first_char_image = next(iter(character_bytes.values()), None)
+            if first_char_image:
+                gen_result = image_backend.image_to_image(first_char_image, prompt)
+            else:
+                gen_result = image_backend.text_to_image(prompt)
+        else:
+            gen_result = image_backend.text_to_image(prompt)
 
         # 保存到项目目录
         dest_path = storyboard_dir / f"frame_{frame_id:03d}.png"

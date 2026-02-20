@@ -26,35 +26,71 @@ def merge_with_ffmpeg(video_files: list, audio_files: list, bgm_file: str, outpu
     if not video_files:
         return False
 
-    # 简单的合并策略：按顺序连接视频，混合音频
-    concat_list = Path("/tmp/concat_list.txt")
-    with open(concat_list, "w") as f:
-        for video in video_files:
-            f.write(f"file '{video}'\n")
+    # 先获取所有视频的分辨率，选择第一个视频的分辨率作为目标分辨率
+    target_width = None
+    target_height = None
 
-    # 构建 FFmpeg 命令
-    # 1. 先连接所有视频
-    # 2. 然后混合对话音频和 BGM
-    # 3. 输出最终视频
+    for video in video_files:
+        try:
+            result = subprocess.run(
+                ["ffprobe", "-v", "error", "-select_streams", "v:0",
+                 "-show_entries", "stream=width,height", "-of", "csv=s=,:p=0", video],
+                capture_output=True, text=True, check=True
+            )
+            if result.stdout.strip():
+                w, h = map(int, result.stdout.strip().split(','))
+                if target_width is None:
+                    target_width, target_height = w, h
+                break
+        except Exception:
+            continue
 
-    # 由于 mock 文件不是真实视频，这里只做演示
-    # 实际使用时需要真实的视频文件
+    if target_width is None:
+        target_width, target_height = 1280, 720  # 默认分辨率
 
-    cmd = [
-        "ffmpeg",
-        "-f", "concat",
-        "-safe", "0",
-        "-i", str(concat_list),
-        "-c", "copy",
-        str(output_path)
-    ]
+    # 创建临时目录用于处理后的视频
+    import tempfile
+    temp_dir = Path(tempfile.mkdtemp())
+    processed_files = []
 
     try:
+        # 1. 将所有视频重新编码为目标分辨率
+        for i, video in enumerate(video_files):
+            processed_path = temp_dir / f"video_{i:03d}.mp4"
+
+            # 使用 scale 滤镜统一分辨率，同时使用 pad 保持纵横比
+            cmd = [
+                "ffmpeg", "-y", "-i", video,
+                "-vf", f"scale={target_width}:{target_height}:force_original_aspect_ratio=decrease,pad={target_width}:{target_height}:(ow-iw)/2:(oh-ih)/2",
+                "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+                "-c:a", "aac", "-b:a", "128k",
+                str(processed_path)
+            ]
+            subprocess.run(cmd, capture_output=True, check=True)
+            processed_files.append(str(processed_path))
+
+        # 2. 使用 concat 合并处理后的视频
+        concat_list = temp_dir / "concat_list.txt"
+        with open(concat_list, "w") as f:
+            for video in processed_files:
+                f.write(f"file '{video}'\n")
+
+        cmd = [
+            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list),
+            "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+            "-c:a", "aac", "-b:a", "128k",
+            str(output_path)
+        ]
         subprocess.run(cmd, capture_output=True, check=True)
         return True
+
     except subprocess.CalledProcessError as e:
         click.echo(f"FFmpeg 错误: {e.stderr.decode() if e.stderr else str(e)}")
         return False
+    finally:
+        # 清理临时文件
+        import shutil
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 @click.command()
