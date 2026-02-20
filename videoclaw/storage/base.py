@@ -11,7 +11,8 @@ from typing import Optional
 class StorageResult:
     """存储结果"""
     local_path: Path
-    cloud_url: Optional[str] = None
+    cloud_url: Optional[str] = None  # Google Drive webViewLink
+    file_id: Optional[str] = None   # Google Drive file_id
 
 
 class StorageBackend(ABC):
