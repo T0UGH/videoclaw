@@ -1,6 +1,7 @@
 """Google Gemini 图像生成后端"""
 from __future__ import annotations
 
+import base64
 import hashlib
 import os
 import time
@@ -15,6 +16,8 @@ logger = get_logger(name="gemini.image")
 
 class GeminiImageBackend(ImageBackend):
     """Google Gemini 图像生成后端"""
+
+    DEFAULT_MODEL = "gemini-2.0-flash-exp-image-generation"
 
     SUPPORTED_MODELS = [
         "gemini-2.0-flash-exp-image-generation",
@@ -34,11 +37,7 @@ class GeminiImageBackend(ImageBackend):
         self.api_key = os.environ.get("GOOGLE_API_KEY")
         if not self.api_key:
             # 然后检查 config 传入的 api_key
-            if isinstance(config, dict):
-                self.api_key = config.get("api_key")
-            else:
-                # Config object
-                self.api_key = config.get("api_key")
+            self.api_key = config.get("api_key")
 
         if not self.api_key:
             raise ValueError(
@@ -97,9 +96,10 @@ class GeminiImageBackend(ImageBackend):
         )
 
     def image_to_image(self, image: bytes, prompt: str, **kwargs) -> GenerationResult:
-        logger.info(f"开始图生图，prompt: {prompt[:50]}...")
+        if not image:
+            raise ValueError("image parameter cannot be empty")
 
-        import base64
+        logger.info(f"开始图生图，prompt: {prompt[:50]}...")
 
         # 将图片转换为 base64
         b64_image = base64.b64encode(image).decode('utf-8')
