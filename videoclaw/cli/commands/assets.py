@@ -10,6 +10,7 @@ from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_image_backend
 from videoclaw.utils.logging import get_logger
+from videoclaw.storage.uploader import upload_to_cloud
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -88,6 +89,16 @@ def assets(project: str, provider: str, use_local: bool):
                 result["characters"][char_name] = str(dest_path)
                 logger.info(f"已保存: {dest_path}")
                 click.echo(f"  已保存: {dest_path}")
+
+                # 上传到云盘
+                cloud_url = upload_to_cloud(
+                    dest_path,
+                    f"videoclaw/{project}/assets/{dest_path.name}",
+                    config,
+                    project
+                )
+                if cloud_url:
+                    click.echo(f"  云盘链接: {cloud_url}")
         except Exception as e:
             logger.error(f"生成失败: {e}")
             click.echo(f"  生成失败: {e}")
@@ -121,6 +132,16 @@ def assets(project: str, provider: str, use_local: bool):
                 result["scenes"][scene_name] = str(dest_path)
                 logger.info(f"已保存: {dest_path}")
                 click.echo(f"  已保存: {dest_path}")
+
+                # 上传到云盘
+                cloud_url = upload_to_cloud(
+                    dest_path,
+                    f"videoclaw/{project}/assets/{dest_path.name}",
+                    config,
+                    project
+                )
+                if cloud_url:
+                    click.echo(f"  云盘链接: {cloud_url}")
         except Exception as e:
             logger.error(f"生成失败: {e}")
             click.echo(f"  生成失败: {e}")
