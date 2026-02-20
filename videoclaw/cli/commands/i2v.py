@@ -77,8 +77,8 @@ def i2v(project: str, provider: str, resolution: str):
         with open(frame_path, "rb") as f:
             image_data = f.read()
 
-        # 调用模型生成视频
-        gen_result = video_backend.image_to_video(image_data, frame_desc, resolution=final_resolution)
+        # 调用模型生成视频 (注意: volcengine i2v 不支持 resolution 参数)
+        gen_result = video_backend.image_to_video(image_data, frame_desc)
 
         # 保存到项目目录
         dest_path = videos_dir / f"video_{frame_id:03d}.mp4"

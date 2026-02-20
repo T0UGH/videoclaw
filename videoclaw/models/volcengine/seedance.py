@@ -84,7 +84,8 @@ class VolcEngineSeedance(VideoBackend):
                     {"type": "image_url", "image_url": {"url": data_url}},
                 ],
                 ratio=kwargs.get("ratio", "16:9"),
-                resolution=kwargs.get("resolution"),  # 如果模型支持 resolution
+                # resolution 参数仅在文生视频时有效，图生视频时不传
+                # resolution=kwargs.get("resolution"),
                 duration=kwargs.get("duration", 5),
                 watermark=kwargs.get("watermark", False),
                 generate_audio=kwargs.get("generate_audio", False),
