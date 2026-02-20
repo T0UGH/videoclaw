@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from videoclass.storage.base import StorageBackend
-from videoclass.storage.local import LocalStorage
+from videoclaw.storage.base import StorageBackend
+from videoclaw.storage.local import LocalStorage
 
 
 def get_storage_backend(
@@ -29,7 +29,7 @@ def get_storage_backend(
         base_dir = base_dir or Path.home() / "videoclaw-projects"
         return LocalStorage(base_dir)
     elif provider == "google_drive":
-        from videoclass.storage.google_drive import GoogleDriveStorage
+        from videoclaw.storage.google_drive import GoogleDriveStorage
         credentials_path = config.get("credentials_path")
         return GoogleDriveStorage(credentials_path=credentials_path)
     elif provider == "dropbox":

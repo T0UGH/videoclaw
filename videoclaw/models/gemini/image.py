@@ -15,21 +15,30 @@ logger = get_logger(name="gemini.image")
 
 
 class GeminiImageBackend(ImageBackend):
-    """Google Gemini 图像生成后端"""
+    """Google Gemini 图像生成后端 (Nano Banana)"""
 
-    DEFAULT_MODEL = "gemini-2.0-flash-exp-image-generation"
+    DEFAULT_MODEL = "gemini-2.5-flash-image"
 
     SUPPORTED_MODELS = [
+        # Gemini 2.5 Flash Image (Nano Banana) - 速度优先
+        "gemini-2.5-flash-image",  # 正式版
+        "gemini-2.5-flash-image-preview",  # 预览版
+        # Gemini 3 Pro Image (Nano Banana Pro) - 质量优先 (需要 Vertex AI)
+        "gemini-3-pro-image-preview",
+        # Imagen 4 系列
+        "imagen-4.0-generate-preview-06-06",
+        "imagen-4.0-ultra-generate-preview-06-06",
+        # 旧模型 (已弃用)
         "gemini-2.0-flash-exp-image-generation",
         "imagen-3.0-fast",
         "imagen-3.0-generate-002",
     ]
 
     def __init__(self, model: str, config: Dict[str, Any]):
-        self.model = model
-        if model not in self.SUPPORTED_MODELS:
+        self.model = model or self.DEFAULT_MODEL
+        if self.model not in self.SUPPORTED_MODELS:
             logger.warning(
-                f"Model {model} not in known supported models: {self.SUPPORTED_MODELS}"
+                f"Model {self.model} not in known supported models: {self.SUPPORTED_MODELS}"
             )
 
         # 支持多种配置格式：Config对象或普通字典
@@ -57,6 +66,17 @@ class GeminiImageBackend(ImageBackend):
             self._client = genai.Client(api_key=self.api_key)
         return self._client
 
+    def _extract_image_from_response(self, response) -> Optional[bytes]:
+        """从 Gemini 响应中提取图片数据"""
+        try:
+            for candidate in response.candidates:
+                for part in candidate.content.parts:
+                    if hasattr(part, 'inline_data') and part.inline_data:
+                        return part.inline_data.data
+        except Exception as e:
+            logger.error(f"提取图片数据失败: {e}")
+        return None
+
     def text_to_image(self, prompt: str, **kwargs) -> GenerationResult:
         logger.info(f"开始生成图片，prompt: {prompt[:50]}...")
 
@@ -68,19 +88,24 @@ class GeminiImageBackend(ImageBackend):
         local_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            # 调用 Gemini API
-            response = self.client.models.generate_images(
+            from google.genai import types
+
+            # 使用 generate_content API (Nano Banana)
+            response = self.client.models.generate_content(
                 model=self.model,
-                prompt=prompt,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_modalities=["TEXT", "IMAGE"]
+                )
             )
 
             # 获取生成的图片
-            if response.generated_images:
-                image_data = response.generated_images[0].image.image_bytes
+            image_data = self._extract_image_from_response(response)
+            if image_data:
                 local_path.write_bytes(image_data)
                 logger.info(f"图片生成成功: {local_path}")
             else:
-                raise ValueError("No images generated")
+                raise ValueError("No images generated in response")
 
         except Exception as e:
             logger.error(f"图片生成失败: {e}")
@@ -102,9 +127,6 @@ class GeminiImageBackend(ImageBackend):
 
         logger.info(f"开始图生图，prompt: {prompt[:50]}...")
 
-        # 将图片转换为 base64
-        b64_image = base64.b64encode(image).decode('utf-8')
-
         # 生成唯一文件名
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         hash_suffix = hashlib.md5(prompt.encode()).hexdigest()[:6]
@@ -113,20 +135,30 @@ class GeminiImageBackend(ImageBackend):
         local_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            # 调用 Gemini API 进行图生图
-            response = self.client.models.generate_images(
+            from google.genai import types
+
+            # 构建多模态内容
+            contents = [
+                types.Part.from_bytes(data=image, mime_type="image/png"),
+                types.Part.from_text(text=prompt)
+            ]
+
+            # 使用 generate_content API 进行图生图
+            response = self.client.models.generate_content(
                 model=self.model,
-                prompt=prompt,
-                image=b64_image,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    response_modalities=["TEXT", "IMAGE"]
+                )
             )
 
             # 获取生成的图片
-            if response.generated_images:
-                image_data = response.generated_images[0].image.image_bytes
+            image_data = self._extract_image_from_response(response)
+            if image_data:
                 local_path.write_bytes(image_data)
                 logger.info(f"图生图成功: {local_path}")
             else:
-                raise ValueError("No images generated")
+                raise ValueError("No images generated in response")
 
         except Exception as e:
             logger.error(f"图生图失败: {e}")

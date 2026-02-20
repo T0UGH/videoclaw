@@ -4,8 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from videoclass.storage.factory import get_storage_backend
-from videoclass.config import Config
+from videoclaw.storage.factory import get_storage_backend
+from videoclaw.config import Config
 
 
 def upload_to_cloud(

@@ -11,7 +11,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
-from videoclass.storage.base import StorageBackend, StorageResult
+from videoclaw.storage.base import StorageBackend, StorageResult
 
 
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
@@ -101,7 +101,7 @@ class GoogleDriveStorage(StorageBackend):
 
     def save(self, data: bytes, path: str) -> StorageResult:
         """保存数据到本地（可选上传 GD）"""
-        from videoclass.storage.local import LocalStorage
+        from videoclaw.storage.local import LocalStorage
         local = LocalStorage()
         result = local.save(data, path)
         return result

@@ -71,17 +71,13 @@ def assets(project: str, provider: str, use_local: bool):
         # 检查本地图片
         dest_path = assets_dir / f"character_{char_name}.png"
 
-        if use_local and dest_path.exists():
+        if dest_path.exists():
             click.echo(f"使用本地图片: {dest_path}")
             result["characters"][char_name] = str(dest_path)
             continue
 
-        if use_local and not dest_path.exists():
-            click.echo(f"错误: 指定了 --use-local 但本地没有角色图片: {dest_path}")
-            continue
-
-        # 直接生成
-        prompt = f"宇航员角色，高清，{char_desc}"
+        # AI 生成
+        prompt = char_desc
         try:
             gen_result = image_backend.text_to_image(prompt)
             if gen_result.local_path:
@@ -114,17 +110,13 @@ def assets(project: str, provider: str, use_local: bool):
         # 检查本地图片
         dest_path = assets_dir / f"scene_{scene_name}.png"
 
-        if use_local and dest_path.exists():
+        if dest_path.exists():
             click.echo(f"使用本地图片: {dest_path}")
             result["scenes"][scene_name] = str(dest_path)
             continue
 
-        if use_local and not dest_path.exists():
-            click.echo(f"错误: 指定了 --use-local 但本地没有场景图片: {dest_path}")
-            continue
-
-        # 直接生成
-        prompt = f"火星场景，{scene_desc}，高清，电影感"
+        # AI 生成
+        prompt = scene_desc
         try:
             gen_result = image_backend.text_to_image(prompt)
             if gen_result.local_path:
