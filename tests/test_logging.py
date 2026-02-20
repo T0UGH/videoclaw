@@ -1,14 +1,26 @@
 """Tests for logging utility"""
 import pytest
+import logging
 from pathlib import Path
-from videoclaw.utils.logging import get_logger, VideoclawLogger
+from videoclaw.utils.logging import get_logger, VideoclawLogger, _loggers
+
+
+@pytest.fixture(autouse=True)
+def clear_loggers():
+    """每个测试前清除日志缓存"""
+    _loggers.clear()
+    # 清除 Python logging 的缓存
+    for name in list(logging.Logger.manager.loggerDict.keys()):
+        if name.startswith("videoclaw") or name == "test":
+            del logging.Logger.manager.loggerDict[name]
+    yield
 
 
 def test_logger_creation():
     """测试日志器创建"""
-    logger = get_logger(name="test")
+    logger = get_logger(name="test-unique")
     assert logger is not None
-    assert logger.name == "test"
+    assert logger.name == "test-unique"
 
 
 def test_logger_with_project(tmp_path):
@@ -30,6 +42,6 @@ def test_videoclaw_logger_class():
 
 def test_logger_returns_same_instance():
     """测试相同 key 返回相同实例"""
-    logger1 = get_logger(name="same-key")
-    logger2 = get_logger(name="same-key")
+    logger1 = get_logger(name="same-key-unique")
+    logger2 = get_logger(name="same-key-unique")
     assert logger1 is logger2
