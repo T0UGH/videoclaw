@@ -168,3 +168,17 @@ video-create skill 负责交互流程：
 2. 调用 CLI 命令执行
 3. 读取生成结果，用 AskUserQuestion 让用户确认
 4. 根据用户反馈决定是否重新生成
+
+### 云盘存储配置
+
+```bash
+# 配置 Google Drive 上传
+videoclaw config --set storage.provider=google_drive
+videoclaw config --set storage.upload_on_generate=true
+```
+
+如需关闭上传功能：
+
+```bash
+videoclaw config --set storage.provider=local
+```
