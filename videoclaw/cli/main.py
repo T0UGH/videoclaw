@@ -13,6 +13,7 @@ from videoclaw.cli.commands.audio import audio
 from videoclaw.cli.commands.merge import merge
 from videoclaw.cli.commands.preview import preview
 from videoclaw.cli.commands.config import config
+from videoclaw.cli.commands.validate import validate
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -33,6 +34,7 @@ main.add_command(audio)
 main.add_command(merge)
 main.add_command(preview)
 main.add_command(config)
+main.add_command(validate)
 
 
 @main.command()
