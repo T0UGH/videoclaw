@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from videoclaw.cli.commands.analyze import analyze
 from videoclaw.cli.commands.assets import assets
 from videoclaw.cli.commands.storyboard import storyboard
 from videoclaw.cli.commands.i2v import i2v
@@ -27,7 +26,6 @@ def main():
 
 
 # 注册子命令
-main.add_command(analyze)
 main.add_command(assets)
 main.add_command(storyboard)
 main.add_command(i2v)
@@ -77,6 +75,14 @@ def init(project_name: str, project_dir: Optional[str]):
         json.dump(state, f, indent=2)
 
     click.echo(f"项目 {project_name} 已创建于 {project_path}")
+
+
+@main.command()
+@click.argument("script_text", required=False)
+@click.option("--project", "-p", help="项目名称")
+def analyze(script_text: Optional[str], project: Optional[str]):
+    """分析脚本，提取角色、场景、帧"""
+    click.echo("分析脚本...")
 
 
 @main.command()
