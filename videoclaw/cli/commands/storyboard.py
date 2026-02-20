@@ -16,53 +16,10 @@ from videoclaw.utils.logging import get_logger
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 
 
-def ask_confirm(prompt: str) -> str:
-    """Ask user for confirmation, return 'y' (yes), 'n' (no), 'r' (retry/adjust)"""
-    while True:
-        answer = input(f"{prompt} (y/n/r): ").strip().lower()
-        if answer in ['y', 'n', 'r']:
-            return answer
-        click.echo("请输入 y (是), n (否), 或 r (调整)")
-
-
-def generate_frame_with_confirm(image_backend, prompt: str, dest_path: Path, frame_id: int, logger) -> tuple[bool, str]:
-    """
-    Generate a frame and ask for confirmation.
-    Returns: (confirmed: bool, final_prompt: str)
-    """
-    while True:
-        click.echo(f"生成中: 帧 {frame_id}...")
-
-        try:
-            gen_result = image_backend.text_to_image(prompt)
-
-            if gen_result.local_path:
-                shutil.copy(gen_result.local_path, dest_path)
-        except Exception as e:
-            logger.error(f"生成失败: {e}")
-            click.echo(f"生成失败: {e}")
-
-        # Show result and ask
-        click.echo(f"生成完成: {dest_path}")
-        click.echo(f"提示词: {prompt}")
-
-        answer = ask_confirm("这帧可以吗？")
-
-        if answer == 'y':
-            return True, prompt
-        elif answer == 'n':
-            return False, prompt
-        else:
-            new_prompt = input("请输入调整后的提示词: ").strip()
-            if new_prompt:
-                prompt = new_prompt
-
-
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
 @click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, mock")
-@click.option("--yes", "-y", is_flag=True, help="跳过确认，直接使用生成的图片")
-def storyboard(project: str, provider: str, yes: bool):
+def storyboard(project: str, provider: str):
     """生成故事板帧图片"""
     project_path = DEFAULT_PROJECTS_DIR / project
     logger = get_logger(project_path)
@@ -145,36 +102,22 @@ def storyboard(project: str, provider: str, yes: bool):
             if char_descriptions:
                 prompt = f"{'，'.join(char_descriptions)}，{prompt}"
 
-        if yes:
-            # 自动模式：直接生成，不确认
-            click.echo(f"生成故事板帧 {frame_id}: {frame_desc[:30]}...", nl=False)
-            try:
-                gen_result = image_backend.text_to_image(prompt)
-                if gen_result.local_path:
-                    shutil.copy(gen_result.local_path, dest_path)
-                    result["frames"].append({
-                        "frame_id": frame_id,
-                        "path": str(dest_path),
-                        "description": frame_desc
-                    })
-                    click.echo(f" 已保存: {dest_path.name}")
-            except Exception as e:
-                logger.error(f"生成失败: {e}")
-                click.echo(f" 生成失败: {e}")
-        else:
-            # 交互模式：生成后确认
-            click.echo(f"生成故事板帧 {frame_id}: {frame_desc[:30]}...")
-            confirmed, final_prompt = generate_frame_with_confirm(
-                image_backend, prompt, dest_path, frame_id, logger
-            )
-            if confirmed:
+        # 直接生成
+        click.echo(f"生成故事板帧 {frame_id}: {frame_desc[:30]}...", nl=False)
+        try:
+            gen_result = image_backend.text_to_image(prompt)
+            if gen_result.local_path:
+                shutil.copy(gen_result.local_path, dest_path)
                 result["frames"].append({
                     "frame_id": frame_id,
                     "path": str(dest_path),
                     "description": frame_desc
                 })
-            else:
-                click.echo(f"跳过帧: {frame_id}")
+                logger.info(f"已保存: {dest_path}")
+                click.echo(f" 已保存: {dest_path.name}")
+        except Exception as e:
+            logger.error(f"生成失败: {e}")
+            click.echo(f" 生成失败: {e}")
 
     state.update_step("storyboard", "completed", result)
     state.set_status("storyboard_rendered")

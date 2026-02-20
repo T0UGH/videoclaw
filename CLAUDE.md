@@ -128,3 +128,43 @@ ARK_API_KEY=xxx  # 火山引擎方舟 API Key
 volcengine-python-sdk[ark]>=5.0.0
 httpx>=0.27.0
 ```
+
+## CLI 工具使用说明
+
+**重要**：所有 CLI 工具仅供 Claude Code 调用，不面向终端用户。
+
+### 设计原则
+
+- **纯执行**：CLI 工具只负责执行命令，不做交互确认
+- **交互在 Skill 层**：用户交互通过 video-create skill 的 AskUserQuestion 实现
+- **Claude Code 专用**：用户不直接运行这些 CLI 命令
+
+### 常用命令
+
+```bash
+# 资产生成（自动执行）
+videoclaw assets --project my-project
+
+# 资产生成，使用本地图片
+videoclaw assets --project my-project --use-local
+
+# 故事板生成（自动执行）
+videoclaw storyboard --project my-project
+
+# 图生视频
+videoclaw i2v --project my-project
+
+# 音频生成
+videoclaw audio --project my-project
+
+# 视频合并
+videoclaw merge --project my-project
+```
+
+### 与 Skill 集成
+
+video-create skill 负责交互流程：
+1. 用 AskUserQuestion 与用户确认需求
+2. 调用 CLI 命令执行
+3. 读取生成结果，用 AskUserQuestion 让用户确认
+4. 根据用户反馈决定是否重新生成
