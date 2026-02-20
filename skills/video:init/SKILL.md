@@ -1,3 +1,9 @@
+---
+name: video:init
+description: 初始化新的视频项目，创建目录结构
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:init - 初始化项目
 
 ## 概述

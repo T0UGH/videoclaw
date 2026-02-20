@@ -1,3 +1,9 @@
+---
+name: video:merge
+description: 合并视频片段，添加音频，生成最终视频
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:merge - 视频合并
 
 ## 概述

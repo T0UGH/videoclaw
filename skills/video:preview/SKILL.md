@@ -1,3 +1,9 @@
+---
+name: video:preview
+description: 预览图片或视频
+allowed-tools: Bash(videoclaw:*), Read
+---
+
 # video:preview - 预览
 
 ## 概述

@@ -1,3 +1,9 @@
+---
+name: video:storyboard
+description: 生成故事板帧图片
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:storyboard - 故事板生成
 
 ## 概述

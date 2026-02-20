@@ -1,3 +1,9 @@
+---
+name: video:create
+description: 一句话创建完整视频，自动执行所有步骤
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:create - 创建视频
 
 ## 概述

@@ -1,3 +1,9 @@
+---
+name: video:config
+description: 管理项目配置和全局配置
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:config - 配置管理
 
 ## 概述

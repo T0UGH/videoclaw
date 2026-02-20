@@ -1,0 +1,20 @@
+{
+  "name": "videoclaw-skills",
+  "description": "Videoclaw CLI skills for AI video generation workflow",
+  "owner": {
+    "name": "Your Name",
+    "email": "your@email.com"
+  },
+  "plugins": [
+    {
+      "name": "videoclaw-skills",
+      "description": "Videoclaw CLI skills for AI video generation workflow",
+      "version": "1.0.0",
+      "source": "./skills",
+      "author": {
+        "name": "Your Name",
+        "email": "your@email.com"
+      }
+    }
+  ]
+}

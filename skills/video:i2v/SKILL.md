@@ -1,3 +1,9 @@
+---
+name: video:i2v
+description: 将故事板图片转换为视频片段
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:i2v - 图生视频
 
 ## 概述

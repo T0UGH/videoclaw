@@ -1,3 +1,9 @@
+---
+name: video:audio
+description: 生成 TTS 语音、音效和背景音乐
+allowed-tools: Bash(videoclaw:*)
+---
+
 # video:audio - 音频生成
 
 ## 概述
