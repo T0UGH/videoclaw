@@ -86,18 +86,34 @@ class VolcEngineSeedream(ImageBackend):
         )
 
     def image_to_image(self, image: bytes, prompt: str, **kwargs) -> GenerationResult:
-        # 临时保存输入图片
-        import tempfile
-        import os
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(image)
-            tmp_path = tmp.name
+        logger.info(f"开始图生图，prompt: {prompt[:50]}...")
+
+        # 将图片转换为 base64 data URL
+        import base64
+        import io
+        from PIL import Image
+
+        img = Image.open(io.BytesIO(image))
+        # 确保图片尺寸足够
+        min_size = 300
+        if img.width < min_size or img.height < min_size:
+            scale = max(min_size / img.width, min_size / img.height)
+            new_size = (int(img.width * scale), int(img.height * scale))
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+            logger.info(f"图片尺寸已调整: {img.width}x{img.height}")
+
+        buffered = io.BytesIO()
+        img_format = img.format or "PNG"
+        img.save(buffered, format=img_format)
+        img_bytes = buffered.getvalue()
+        b64_img = base64.b64encode(img_bytes).decode('utf-8')
+        data_url = f"data:image/{img_format.lower()};base64,{b64_img}"
 
         try:
             response = self.client.images.generate(
                 model=self.model,
                 prompt=prompt,
-                image=tmp_path,
+                image=data_url,  # 使用 base64 data URL
                 size=kwargs.get("size", "2K"),
                 response_format="url",
                 watermark=kwargs.get("watermark", False),
@@ -112,8 +128,10 @@ class VolcEngineSeedream(ImageBackend):
             hash_suffix = hashlib.md5(prompt.encode()).hexdigest()[:6]
             filename = f"seedream_i2i_{timestamp}_{hash_suffix}.png"
             local_path = Path.home() / "videoclaw-projects" / "temp" / filename
+            local_path.parent.mkdir(parents=True, exist_ok=True)
             local_path.write_bytes(image_data)
 
+            logger.info(f"图生图成功: {local_path}")
             return GenerationResult(
                 local_path=local_path,
                 cloud_url=image_url,
@@ -123,5 +141,6 @@ class VolcEngineSeedream(ImageBackend):
                     "prompt": prompt,
                 }
             )
-        finally:
-            os.unlink(tmp_path)
+        except Exception as e:
+            logger.error(f"图生图失败: {e}")
+            raise
