@@ -19,8 +19,19 @@ class VolcEngineSeedream(ImageBackend):
 
     def __init__(self, model: str, config: Dict[str, Any]):
         self.model = model
-        self.api_key = config.get("api_key") or config.get("ak")  # 兼容旧配置
-        self.region = config.get("region", "cn-beijing")
+        # 支持多种配置格式：Config对象或普通字典
+        # 字典格式: {'ark': {'api_key': ...}} 或 {'api_key': ...}
+        if isinstance(config, dict):
+            self.api_key = (
+                config.get("ark", {}).get("api_key") or
+                config.get("api_key") or
+                config.get("ak")
+            )
+            self.region = config.get("ark", {}).get("region") or config.get("region", "cn-beijing")
+        else:
+            # Config object
+            self.api_key = config.get("ark.api_key") or config.get("api_key") or config.get("ak")
+            self.region = config.get("region", "cn-beijing")
         if not self.api_key:
             raise ValueError(
                 "VolcEngine ARK API Key is required. "

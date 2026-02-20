@@ -48,6 +48,7 @@ def i2v(project: str, provider: str, resolution: str):
 
     # 获取模型
     model = config.get("models.video.model", "")
+    video_backend = get_video_backend(provider, model, config.get_all())
 
     # 确定分辨率：命令行 > 配置 > 默认
     final_resolution = resolution or config.get("models.video.resolution", "1280x720")

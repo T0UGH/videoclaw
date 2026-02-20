@@ -19,8 +19,18 @@ class VolcEngineSeedance(VideoBackend):
 
     def __init__(self, model: str, config: Dict[str, Any]):
         self.model = model
-        self.api_key = config.get("api_key") or config.get("ak")
-        self.region = config.get("region", "cn-beijing")
+        # 支持多种配置格式：Config对象或普通字典
+        if isinstance(config, dict):
+            self.api_key = (
+                config.get("ark", {}).get("api_key") or
+                config.get("api_key") or
+                config.get("ak")
+            )
+            self.region = config.get("ark", {}).get("region") or config.get("region", "cn-beijing")
+        else:
+            # Config object
+            self.api_key = config.get("ark.api_key") or config.get("api_key") or config.get("ak")
+            self.region = config.get("region", "cn-beijing")
         if not self.api_key:
             raise ValueError(
                 "VolcEngine ARK API Key is required. "
@@ -65,8 +75,7 @@ class VolcEngineSeedance(VideoBackend):
                     {"type": "text", "text": prompt},
                     {"type": "image_url", "image_url": {"url": data_url}}
                 ],
-                ratio=kwargs.get("ratio", "adaptive"),
-                resolution=kwargs.get("resolution", "1280x720"),
+                ratio=kwargs.get("ratio", "16:9"),
                 duration=kwargs.get("duration", 5),
                 watermark=kwargs.get("watermark", False),
                 generate_audio=kwargs.get("generate_audio", False),

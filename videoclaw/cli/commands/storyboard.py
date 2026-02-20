@@ -89,19 +89,21 @@ def storyboard(project: str, provider: str):
 
         click.echo(f"生成故事板帧 {frame_id}: {frame_desc[:30]}...", nl=False)
 
-        # 构建提示词
+        # 构建提示词，包含角色信息以保持一致性
         prompt = f"电影镜头，{camera}，{frame_desc}，高清，电影感"
-
-        # 使用角色图片进行图生图（如果存在）
         if character_bytes:
-            # 优先使用第一个角色图片作为参考
-            first_char_image = next(iter(character_bytes.values()), None)
-            if first_char_image:
-                gen_result = image_backend.image_to_image(first_char_image, prompt)
-            else:
-                gen_result = image_backend.text_to_image(prompt)
-        else:
-            gen_result = image_backend.text_to_image(prompt)
+            # 将角色描述加入提示词
+            char_descriptions = []
+            for char_name, _ in character_images.items():
+                # 从 analyze 结果中获取角色描述
+                for char in analyze_data.get("characters", []):
+                    if char.get("name") == char_name:
+                        char_descriptions.append(char.get("description", ""))
+            if char_descriptions:
+                prompt = f"{'，'.join(char_descriptions)}，{prompt}"
+
+        # 使用文本生成图片（暂时）
+        gen_result = image_backend.text_to_image(prompt)
 
         # 保存到项目目录
         dest_path = storyboard_dir / f"frame_{frame_id:03d}.png"
