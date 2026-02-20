@@ -66,6 +66,7 @@ class VolcEngineSeedance(VideoBackend):
                     {"type": "image_url", "image_url": {"url": data_url}}
                 ],
                 ratio=kwargs.get("ratio", "adaptive"),
+                resolution=kwargs.get("resolution", "1280x720"),
                 duration=kwargs.get("duration", 5),
                 watermark=kwargs.get("watermark", False),
                 generate_audio=kwargs.get("generate_audio", False),

@@ -17,7 +17,8 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
 @click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, mock")
-def i2v(project: str, provider: str):
+@click.option("--resolution", "-r", default=None, help="视频分辨率，如 1920x1080, 1280x720")
+def i2v(project: str, provider: str, resolution: str):
     """图生视频"""
     project_path = DEFAULT_PROJECTS_DIR / project
     logger = get_logger(project_path)
@@ -47,7 +48,10 @@ def i2v(project: str, provider: str):
 
     # 获取模型
     model = config.get("models.video.model", "")
-    video_backend = get_video_backend(provider, model, config.get_all())
+
+    # 确定分辨率：命令行 > 配置 > 默认
+    final_resolution = resolution or config.get("models.video.resolution", "1280x720")
+    logger.info(f"使用分辨率: {final_resolution}")
 
     videos_dir = project_path / "videos"
     videos_dir.mkdir(exist_ok=True)
@@ -73,7 +77,7 @@ def i2v(project: str, provider: str):
             image_data = f.read()
 
         # 调用模型生成视频
-        gen_result = video_backend.image_to_video(image_data, frame_desc)
+        gen_result = video_backend.image_to_video(image_data, frame_desc, resolution=final_resolution)
 
         # 保存到项目目录
         dest_path = videos_dir / f"video_{frame_id:03d}.mp4"
