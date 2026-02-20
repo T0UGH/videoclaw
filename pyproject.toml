@@ -22,7 +22,7 @@ dev = [
 ]
 
 [project.scripts]
-videoclaw = "videoclaw.cli:main"
+videoclaw = "videoclaw.cli.main:main"
 
 [build-system]
 requires = ["setuptools>=68.0"]

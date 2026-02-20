@@ -37,20 +37,27 @@ class VolcEngineSeedance(VideoBackend):
         local_path = Path.home() / "videoclaw-projects" / "temp" / filename
         local_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # 临时保存输入图片
-        import tempfile
-        import os
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(image)
-            tmp_path = tmp.name
+        # 将图片转换为 base64 data URL
+        import base64
+        import io
+        from PIL import Image
+
+        # 读取图片并转换为 base64
+        img = Image.open(io.BytesIO(image))
+        buffered = io.BytesIO()
+        img_format = img.format or "PNG"
+        img.save(buffered, format=img_format)
+        img_bytes = buffered.getvalue()
+        b64_img = base64.b64encode(img_bytes).decode('utf-8')
+        data_url = f"data:image/{img_format.lower()};base64,{b64_img}"
 
         try:
-            # Step 1: 创建异步任务
+            # Step 1: 创建异步任务 (使用 base64 data URL)
             response = self.client.content_generation.tasks.create(
                 model=self.model,
                 content=[
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": tmp_path}}
+                    {"type": "image_url", "image_url": {"url": data_url}}
                 ],
                 ratio=kwargs.get("ratio", "adaptive"),
                 duration=kwargs.get("duration", 5),
@@ -97,4 +104,4 @@ class VolcEngineSeedance(VideoBackend):
             raise TimeoutError(f"Video generation timeout after {max_wait} seconds")
 
         finally:
-            os.unlink(tmp_path)
+            pass
