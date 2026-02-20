@@ -6,7 +6,9 @@ import subprocess
 from pathlib import Path
 
 from videoclaw.state import StateManager
+from videoclaw.config import Config
 from videoclaw.utils.logging import get_logger
+from videoclaw.storage.uploader import upload_to_cloud
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -109,6 +111,7 @@ def merge(project: str, skip_audio: bool):
     logger.info(f"开始合并视频，项目: {project}")
 
     state = StateManager(project_path)
+    config = Config(project_path)
 
     # 检查上一步是否完成（除非跳过音频）
     if not skip_audio:
@@ -166,6 +169,16 @@ def merge(project: str, skip_audio: bool):
     result = {
         "output_file": str(output_path),
     }
+
+    # 上传到云盘
+    cloud_url = upload_to_cloud(
+        output_path,
+        f"videoclaw/{project}/final.mp4",
+        config,
+        project
+    )
+    if cloud_url:
+        click.echo(f" 云盘链接: {cloud_url}")
 
     state.update_step("merge", "completed", result)
     state.set_status("completed")
