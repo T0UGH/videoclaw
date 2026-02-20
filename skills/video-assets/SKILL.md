@@ -20,7 +20,7 @@ videoclaw assets --project my-project
 
 ## 前置条件
 
-需要先完成 `video:analyze`
+分析结果已在 video-create 时生成，保存在 state.json 中
 
 ## 示例
 
