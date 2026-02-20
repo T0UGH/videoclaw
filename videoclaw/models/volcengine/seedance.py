@@ -104,4 +104,7 @@ class VolcEngineSeedance(VideoBackend):
             raise TimeoutError(f"Video generation timeout after {max_wait} seconds")
 
         finally:
-            pass
+            # 清理临时图片文件
+            import os
+            if 'tmp_path' in locals() and os.path.exists(tmp_path):
+                os.unlink(tmp_path)
