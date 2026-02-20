@@ -17,7 +17,7 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
-@click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, mock")
+@click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, gemini, mock")
 @click.option("--resolution", "-r", default=None, help="视频分辨率，如 1920x1080, 1280x720")
 def i2v(project: str, provider: str, resolution: str):
     """图生视频"""

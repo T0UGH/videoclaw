@@ -17,6 +17,9 @@ def get_image_backend(provider: str, model: str, config: Dict[str, Any]) -> Imag
     elif provider == "mock":
         from videoclaw.models.mock.image import MockImageBackend
         return MockImageBackend(model, config)
+    elif provider == "gemini":
+        from videoclaw.models.gemini.image import GeminiImageBackend
+        return GeminiImageBackend(model, config)
     else:
         raise ValueError(f"Unknown image provider: {provider}")
 

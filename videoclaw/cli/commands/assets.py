@@ -18,7 +18,7 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
-@click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, mock")
+@click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, gemini, mock")
 @click.option("--use-local", is_flag=True, help="使用本地图片，不调用T2I")
 def assets(project: str, provider: str, use_local: bool):
     """生成角色和场景图片资产"""
