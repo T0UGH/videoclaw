@@ -64,10 +64,31 @@ _loggers: dict = {}
 
 def get_logger(project_path: Optional[Path] = None, name: str = "videoclaw") -> logging.Logger:
     """获取项目日志器"""
+    # 尝试读取配置
+    console_level = logging.INFO
+    file_level = logging.INFO
+
+    if project_path:
+        config_file = project_path / ".videoclaw" / "config.yaml"
+        if config_file.exists():
+            import yaml
+            try:
+                with open(config_file) as f:
+                    config = yaml.safe_load(f) or {}
+                console_level_str = config.get("logging", {}).get("level", "INFO")
+                file_level_str = config.get("logging", {}).get("file_level", "INFO")
+                console_level = getattr(logging, console_level_str, logging.INFO)
+                file_level = getattr(logging, file_level_str, logging.INFO)
+            except Exception:
+                pass  # 配置读取失败使用默认级别
+
     key = str(project_path) if project_path else "global"
 
     if key not in _loggers:
         logger_obj = VideoclawLogger(project_path, name)
-        _loggers[key] = logger_obj.setup()
+        _loggers[key] = logger_obj.setup(
+            console_level=console_level,
+            file_level=file_level,
+        )
 
     return _loggers[key]
