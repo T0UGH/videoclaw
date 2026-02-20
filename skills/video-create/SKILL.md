@@ -123,6 +123,20 @@ videoclaw config --project mars-video --set models.image.provider=dashscope
 videoclaw config --project mars-video --set models.video.provider=volcengine
 ```
 
+### Google Gemini
+
+如需使用 Google Gemini 图像生成:
+
+```bash
+videoclaw config --project mars-video --set models.image.provider=gemini
+videoclaw config --project mars-video --set models.image.model=gemini-2.0-flash-exp-image-generation
+```
+
+需要设置环境变量:
+```bash
+export GOOGLE_API_KEY="your-api-key"
+```
+
 ## 云盘配置
 
 如需将生成的视频/图片上传到 Google Drive：
