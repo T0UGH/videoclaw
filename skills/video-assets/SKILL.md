@@ -1,10 +1,9 @@
 ---
-name: video:assets
-description: 生成角色和场景图片资产
-allowed-tools: Bash(videoclaw:*)
+name: video-assets
+description: Use when user needs to generate character and scene image assets for a video project
 ---
 
-# video:assets - 资产生成
+# video-assets - 资产生成
 
 ## 概述
 生成角色和场景图片资产。

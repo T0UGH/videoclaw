@@ -1,10 +1,9 @@
 ---
-name: video:preview
-description: 预览图片或视频
-allowed-tools: Bash(videoclaw:*), Read
+name: video-preview
+description: Use when user wants to preview images or videos
 ---
 
-# video:preview - 预览
+# video-preview - 预览
 
 ## 概述
 预览图片或视频。

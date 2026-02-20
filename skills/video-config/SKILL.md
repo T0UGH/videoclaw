@@ -1,10 +1,9 @@
 ---
-name: video:config
-description: 管理项目配置和全局配置
-allowed-tools: Bash(videoclaw:*)
+name: video-config
+description: Use when user needs to view, get, or set project or global configuration
 ---
 
-# video:config - 配置管理
+# video-config - 配置管理
 
 ## 概述
 管理项目配置和全局配置。

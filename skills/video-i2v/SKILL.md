@@ -1,10 +1,9 @@
 ---
-name: video:i2v
-description: 将故事板图片转换为视频片段
-allowed-tools: Bash(videoclaw:*)
+name: video-i2v
+description: Use when user needs to convert storyboard images into video clips
 ---
 
-# video:i2v - 图生视频
+# video-i2v - 图生视频
 
 ## 概述
 将故事板图片转换为视频片段。

@@ -1,10 +1,9 @@
 ---
-name: video:audio
-description: 生成 TTS 语音、音效和背景音乐
-allowed-tools: Bash(videoclaw:*)
+name: video-audio
+description: Use when user needs to generate TTS voice, sound effects, and background music for a video
 ---
 
-# video:audio - 音频生成
+# video-audio - 音频生成
 
 ## 概述
 生成 TTS 语音、音效和背景音乐。

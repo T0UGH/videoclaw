@@ -1,10 +1,9 @@
 ---
-name: video:analyze
-description: 分析用户提供的脚本或描述，提取角色、场景、道具和故事板帧
-allowed-tools: Bash(videoclaw:*)
+name: video-analyze
+description: Use when user provides a script or description and needs to extract characters, scenes, props, and storyboard frames
 ---
 
-# video:analyze - 脚本分析
+# video-analyze - 脚本分析
 
 ## 概述
 分析用户提供的脚本或描述，提取角色、场景、道具和故事板帧。

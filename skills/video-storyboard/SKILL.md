@@ -1,10 +1,9 @@
 ---
-name: video:storyboard
-description: 生成故事板帧图片
-allowed-tools: Bash(videoclaw:*)
+name: video-storyboard
+description: Use when user needs to generate storyboard frame images from analyzed content
 ---
 
-# video:storyboard - 故事板生成
+# video-storyboard - 故事板生成
 
 ## 概述
 生成故事板帧图片。

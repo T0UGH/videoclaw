@@ -1,10 +1,9 @@
 ---
-name: video:status
-description: 查看当前项目的进度和状态
-allowed-tools: Bash(videoclaw:*)
+name: video-status
+description: Use when user wants to check the progress and status of a video project
 ---
 
-# video:status - 查看项目状态
+# video-status - 查看项目状态
 
 ## 概述
 查看当前项目的进度和状态。
