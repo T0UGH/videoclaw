@@ -1,4 +1,5 @@
 """Tests for VolcEngine video backend"""
+import io
 import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -15,11 +16,17 @@ def test_volcengine_seedance_image_to_video():
     mock_task.status = "succeeded"
     mock_task.video = MagicMock(url="https://example.com/video.mp4")
 
-    with patch.object(backend.client.content_generation.tasks, 'create', return_value=mock_task):
-        with patch.object(backend.client.content_generation.tasks, 'get', return_value=mock_task):
-            with patch('requests.get') as mock_get:
-                mock_get.return_value = MagicMock(content=b"fake_video_data")
-                result = backend.image_to_video(b"fake_image_data", "宇航员走路")
+    # Mock PIL Image to avoid needing real image data
+    mock_img = MagicMock()
+    mock_img.format = "PNG"
+    mock_img.save = MagicMock()
+
+    with patch('PIL.Image.open', return_value=mock_img):
+        with patch.object(backend.client.content_generation.tasks, 'create', return_value=mock_task):
+            with patch.object(backend.client.content_generation.tasks, 'get', return_value=mock_task):
+                with patch('requests.get') as mock_get:
+                    mock_get.return_value = MagicMock(content=b"fake_video_data")
+                    result = backend.image_to_video(b"fake_image_data", "宇航员走路")
 
     assert result.local_path.exists()
     assert result.local_path.suffix == ".mp4"
