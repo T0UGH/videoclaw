@@ -16,7 +16,15 @@ description: Use when user wants to create a complete video from a description i
 ## 执行流程
 
 1. 调用 `videoclaw init <project-name>` 初始化项目
-2. 直接使用 Claude 能力分析脚本，生成 JSON 并写入 `<project>/.videoclaw/state.json` 的 `steps.analyze.output` 字段
+2. **交互式分析**（替代直接生成）：
+   - 用户输入视频想法（如 "帮我做个宇航员在火星发现变形金刚的视频"）
+   - 使用 AskUserQuestion 追问关键问题，一次只问一个
+   - 追问示例：
+     - "这个视频想表达什么氛围？"（紧张/有趣/史诗感）
+     - "大概多长时间？"（15秒/30秒/1分钟）
+     - "需要几个主要角色？"
+   - 追问完后确认："我理解你要做一个30秒、有史诗感的视频，有宇航员和变形金刚两个角色。我这样理解对吗？"
+   - 用户确认后，生成 JSON 并写入 `<project>/.videoclaw/state.json` 的 `steps.analyze.output` 字段
 3. 调用 `videoclaw assets --project <project-name>` 生成资产
 4. 调用 `videoclaw storyboard --project <project-name>` 生成故事板
 5. 调用 `videoclaw i2v --project <project-name>` 图生视频
@@ -42,14 +50,16 @@ description: Use when user wants to create a complete video from a description i
 
 Claude Code:
 1. videoclaw init mars-video
-2. 直接分析脚本，生成 JSON：
-   {
-     "script": "宇航员在火星上发现外星遗迹",
-     "characters": [...],
-     "scenes": [...],
-     "frames": [...]
-   }
-   保存到 .videoclaw/state.json
+2. 交互式分析：
+   - "这个视频想表达什么氛围？A 紧张 B 有趣 C 史诗感"
+   - 用户选择: C 史诗感
+   - "大概多长时间？A 15秒 B 30秒 C 1分钟"
+   - 用户选择: B 30秒
+   - "需要几个主要角色？"
+   - 用户回答: 2个，宇航员和外星人
+   - "我理解你要做一个30秒、有史诗感的视频，有宇航员和外星人两个角色。我这样理解对吗？"
+   - 用户确认: 对
+   - 生成 JSON 并保存
 3. videoclaw assets --project mars-video
 4. videoclaw storyboard --project mars-video
 5. videoclaw i2v --project mars-video
