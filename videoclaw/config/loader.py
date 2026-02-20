@@ -64,3 +64,11 @@ class Config:
     def get_all(self) -> Dict[str, Any]:
         """获取所有配置"""
         return self._config.copy()
+
+    def get_storage_config(self) -> Dict[str, Any]:
+        """获取存储配置"""
+        return {
+            "provider": self.get("storage.provider", "local"),
+            "upload_on_generate": self.get("storage.upload_on_generate", False),
+            "credentials_path": self.get("storage.credentials_path"),
+        }
