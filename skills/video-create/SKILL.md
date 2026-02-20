@@ -123,6 +123,26 @@ videoclaw config --project mars-video --set models.image.provider=dashscope
 videoclaw config --project mars-video --set models.video.provider=volcengine
 ```
 
+## 云盘配置
+
+如需将生成的视频/图片上传到 Google Drive：
+
+```bash
+# 配置全局存储
+videoclaw config --set storage.provider=google_drive
+videoclaw config --set storage.upload_on_generate=true
+```
+
+首次使用需要 OAuth 授权，程序会提示你在浏览器中授权。
+
+上传后，云盘链接会在每个步骤后显示，方便你在手机端查看。
+
+如需关闭上传功能：
+
+```bash
+videoclaw config --set storage.provider=local
+```
+
 ## 分析结果格式
 
 ```json
