@@ -78,14 +78,6 @@ def init(project_name: str, project_dir: Optional[str]):
 
 
 @main.command()
-@click.argument("script_text", required=False)
-@click.option("--project", "-p", help="项目名称")
-def analyze(script_text: Optional[str], project: Optional[str]):
-    """分析脚本，提取角色、场景、帧"""
-    click.echo("分析脚本...")
-
-
-@main.command()
 @click.option("--project", "-p", required=True, help="项目名称")
 def status(project: str):
     """查看项目状态"""
