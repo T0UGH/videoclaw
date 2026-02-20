@@ -8,6 +8,7 @@ from pathlib import Path
 from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_image_backend
+from videoclaw.utils.logging import get_logger
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -19,10 +20,14 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 def storyboard(project: str, provider: str):
     """生成故事板帧图片"""
     project_path = DEFAULT_PROJECTS_DIR / project
+    logger = get_logger(project_path)
 
     if not project_path.exists():
+        logger.error(f"项目 {project} 不存在")
         click.echo(f"错误: 项目 {project} 不存在", err=True)
         return
+
+    logger.info(f"开始生成故事板，项目: {project}")
 
     state = StateManager(project_path)
     config = Config(project_path)
@@ -45,6 +50,8 @@ def storyboard(project: str, provider: str):
     # 获取分析结果中的帧
     analyze_data = analyze_step.get("output", {})
     frames = analyze_data.get("frames", [])
+
+    logger.info(f"开始生成 {len(frames)} 个故事板帧")
 
     # 获取模型
     model = config.get("models.image.model", "")
@@ -83,4 +90,5 @@ def storyboard(project: str, provider: str):
     state.update_step("storyboard", "completed", result)
     state.set_status("storyboard_rendered")
 
+    logger.info(f"故事板生成完成: {len(frames)} 帧")
     click.echo("\n故事板生成完成!")

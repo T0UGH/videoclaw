@@ -8,6 +8,7 @@ from pathlib import Path
 from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_video_backend
+from videoclaw.utils.logging import get_logger
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -19,10 +20,14 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 def i2v(project: str, provider: str):
     """图生视频"""
     project_path = DEFAULT_PROJECTS_DIR / project
+    logger = get_logger(project_path)
 
     if not project_path.exists():
+        logger.error(f"项目 {project} 不存在")
         click.echo(f"错误: 项目 {project} 不存在", err=True)
         return
+
+    logger.info(f"开始图生视频，项目: {project}")
 
     state = StateManager(project_path)
     config = Config(project_path)

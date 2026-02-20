@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 
 from videoclaw.state import StateManager
+from videoclaw.utils.logging import get_logger
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -62,10 +63,14 @@ def merge_with_ffmpeg(video_files: list, audio_files: list, bgm_file: str, outpu
 def merge(project: str, skip_audio: bool):
     """合并视频片段"""
     project_path = DEFAULT_PROJECTS_DIR / project
+    logger = get_logger(project_path)
 
     if not project_path.exists():
+        logger.error(f"项目 {project} 不存在")
         click.echo(f"错误: 项目 {project} 不存在", err=True)
         return
+
+    logger.info(f"开始合并视频，项目: {project}")
 
     state = StateManager(project_path)
 

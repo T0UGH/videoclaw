@@ -8,6 +8,7 @@ from pathlib import Path
 from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.models.factory import get_image_backend
+from videoclaw.utils.logging import get_logger
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -19,10 +20,14 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 def assets(project: str, provider: str):
     """生成角色和场景图片资产"""
     project_path = DEFAULT_PROJECTS_DIR / project
+    logger = get_logger(project_path)
 
     if not project_path.exists():
+        logger.error(f"项目 {project} 不存在")
         click.echo(f"错误: 项目 {project} 不存在", err=True)
         return
+
+    logger.info(f"开始生成资产，项目: {project}")
 
     state = StateManager(project_path)
     config = Config(project_path)
@@ -30,6 +35,7 @@ def assets(project: str, provider: str):
     # 检查上一步是否完成
     analyze_step = state.get_step("analyze")
     if not analyze_step or analyze_step.get("status") != "completed":
+        logger.error("请先完成脚本分析")
         click.echo("错误: 请先完成脚本分析", err=True)
         return
 
@@ -53,10 +59,13 @@ def assets(project: str, provider: str):
 
     # 生成角色图片
     characters = analyze_data.get("characters", [])
+    logger.info(f"开始生成 {len(characters)} 个角色图片")
+
     for char in characters:
         char_name = char.get("name", "character")
         char_desc = char.get("description", "")
 
+        logger.debug(f"生成角色: {char_name}, 描述: {char_desc}")
         click.echo(f"生成角色图片: {char_name}")
         prompt = f"宇航员角色，高清，{char_desc}"
         gen_result = image_backend.text_to_image(prompt)
@@ -67,14 +76,18 @@ def assets(project: str, provider: str):
             import shutil
             shutil.copy(gen_result.local_path, dest_path)
             result["characters"][char_name] = str(dest_path)
+            logger.info(f"角色图片已保存: {char_name}")
             click.echo(f"  已保存: {dest_path}")
 
     # 生成场景图片
     scenes = analyze_data.get("scenes", [])
+    logger.info(f"开始生成 {len(scenes)} 个场景图片")
+
     for scene in scenes:
         scene_name = scene.get("name", "scene")
         scene_desc = scene.get("description", "")
 
+        logger.debug(f"生成场景: {scene_name}, 描述: {scene_desc}")
         click.echo(f"生成场景图片: {scene_name}")
         prompt = f"火星场景，{scene_desc}，高清，电影感"
         gen_result = image_backend.text_to_image(prompt)
@@ -85,9 +98,11 @@ def assets(project: str, provider: str):
             import shutil
             shutil.copy(gen_result.local_path, dest_path)
             result["scenes"][scene_name] = str(dest_path)
+            logger.info(f"场景图片已保存: {scene_name}")
             click.echo(f"  已保存: {dest_path}")
 
     state.update_step("assets", "completed", result)
     state.set_status("assets_generated")
 
+    logger.info(f"资产生成完成: {len(result['characters'])} 个角色, {len(result['scenes'])} 个场景")
     click.echo("资产生成完成!")
