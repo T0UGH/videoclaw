@@ -94,13 +94,14 @@ class VolcEngineSeedream(ImageBackend):
         from PIL import Image
 
         img = Image.open(io.BytesIO(image))
-        # 确保图片尺寸足够
-        min_size = 300
-        if img.width < min_size or img.height < min_size:
-            scale = max(min_size / img.width, min_size / img.height)
+        # 确保图片尺寸足够（图生图要求至少 3686400 像素 ≈ 1920x1920）
+        min_pixels = 3686400
+        current_pixels = img.width * img.height
+        if current_pixels < min_pixels:
+            scale = (min_pixels / current_pixels) ** 0.5
             new_size = (int(img.width * scale), int(img.height * scale))
             img = img.resize(new_size, Image.Resampling.LANCZOS)
-            logger.info(f"图片尺寸已调整: {img.width}x{img.height}")
+            logger.info(f"图片尺寸已调整: {img.width}x{img.height} (原始: {img.width // scale:.0f}x{img.height // scale:.0f})")
 
         buffered = io.BytesIO()
         img_format = img.format or "PNG"
@@ -114,7 +115,7 @@ class VolcEngineSeedream(ImageBackend):
                 model=self.model,
                 prompt=prompt,
                 image=data_url,  # 使用 base64 data URL
-                size=kwargs.get("size", "2K"),
+                size=kwargs.get("size", "2048x2048"),
                 response_format="url",
                 watermark=kwargs.get("watermark", False),
             )
