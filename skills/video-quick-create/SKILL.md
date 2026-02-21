@@ -51,7 +51,7 @@ videoclaw i2i -i <reference.jpg> -p "转换为九宫格角色图" -o <project>/a
 ### 3. 生成视频
 
 ```bash
-videoclaw i2v -p <project> -i <assets/image1.png> -t "镜头1描述" -i <assets/image2.png> -t "镜头2描述"
+videoclaw i2v -p <project> -i <assets/image1.png> -i <assets/image2.png> -t "角色向前匀速行走"
 ```
 
 ## 交互确认

@@ -17,15 +17,11 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
 @click.option("--image", "-i", "images", multiple=True, required=True, help="图片路径，可多次指定")
-@click.option("--prompt", "-t", "prompts", multiple=True, required=True, help="传给视频模型的 prompt")
+@click.option("--prompt", "-t", required=True, help="传给视频模型的 prompt")
 @click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, gemini, mock")
 @click.option("--resolution", "-r", default=None, help="视频分辨率，如 1920x1080, 1280x720")
-def i2v(project: str, images: tuple, prompts: tuple, provider: str, resolution: str):
+def i2v(project: str, images: tuple, prompt: str, provider: str, resolution: str):
     """图生视频（通用模式）"""
-    if len(images) != len(prompts):
-        click.echo("错误: --image 和 --prompt 数量必须一致", err=True)
-        return
-
     project_path = DEFAULT_PROJECTS_DIR / project
     logger = get_logger(project_path)
 
@@ -52,7 +48,7 @@ def i2v(project: str, images: tuple, prompts: tuple, provider: str, resolution: 
     result = {"videos": []}
 
     # 为每张图片生成视频
-    for idx, (image_path, prompt) in enumerate(zip(images, prompts)):
+    for idx, image_path in enumerate(images):
         image_path = Path(image_path)
         if not image_path.exists():
             click.echo(f"警告: 图片 {image_path} 不存在，跳过")
