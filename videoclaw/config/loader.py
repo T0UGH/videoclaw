@@ -10,11 +10,21 @@ from typing import Any, Dict, Optional
 class Config:
     """配置管理类"""
 
+    # 环境变量映射
+    ENV_MAPPINGS = {
+        "dashscope.api_key": "DASHSCOPE_API_KEY",
+        "volcengine.ak": "VOLCENGINE_AK",
+        "volcengine.sk": "VOLCENGINE_SK",
+        "ark.api_key": "ARK_API_KEY",
+        "google.api_key": "GOOGLE_API_KEY",
+    }
+
     def __init__(self, project_path: Optional[Path] = None):
         self._config: Dict[str, Any] = {}
         self._project_path = project_path
         self._load()
 
+    @staticmethod
     def _deep_merge(base: dict, override: dict) -> dict:
         """深度合并两个字典，override 优先"""
         result = base.copy()
@@ -30,16 +40,22 @@ class Config:
         global_config = {}
         global_config_path = Path.home() / ".videoclaw" / "config.yaml"
         if global_config_path.exists():
-            with open(global_config_path) as f:
-                global_config = yaml.safe_load(f) or {}
+            try:
+                with open(global_config_path) as f:
+                    global_config = yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                pass  # 忽略损坏的配置文件
 
         # 2. 加载项目配置
         project_config = {}
         if self._project_path:
             project_config_path = self._project_path / ".videoclaw" / "config.yaml"
             if project_config_path.exists():
-                with open(project_config_path) as f:
-                    project_config = yaml.safe_load(f) or {}
+                try:
+                    with open(project_config_path) as f:
+                        project_config = yaml.safe_load(f) or {}
+                except yaml.YAMLError:
+                    pass  # 忽略损坏的配置文件
 
         # 3. 合并：全局 + 项目（项目覆盖全局）
         self._config = Config._deep_merge(global_config, project_config)
@@ -48,15 +64,8 @@ class Config:
         """获取配置值"""
         # 1. 检查环境变量 (最高优先级)
         # 映射常用环境变量
-        env_mappings = {
-            "dashscope.api_key": "DASHSCOPE_API_KEY",
-            "volcengine.ak": "VOLCENGINE_AK",
-            "volcengine.sk": "VOLCENGINE_SK",
-            "ark.api_key": "ARK_API_KEY",
-            "google.api_key": "GOOGLE_API_KEY",
-        }
-        if key in env_mappings:
-            env_key = env_mappings[key]
+        if key in Config.ENV_MAPPINGS:
+            env_key = Config.ENV_MAPPINGS[key]
             if env_key in os.environ:
                 return os.environ[env_key]
 
