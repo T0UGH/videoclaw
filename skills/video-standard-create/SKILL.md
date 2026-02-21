@@ -38,7 +38,7 @@ description: Use when user wants to create a complete video from a description i
    - 调用 `videoclaw storyboard --project <project-name>` 生成故事板
    - 读取生成的图片路径，用 AskUserQuestion 询问用户
    - 如果不满意，重复上述调整流程
-5. 调用 `videoclaw i2v --project <project-name>` 图生视频
+5. 调用 `videoclaw i2v-from-storyboard --project <project-name>` 图生视频
 6. 调用 `videoclaw audio --project <project-name>` 生成音频
 7. 调用 `videoclaw merge --project <project-name>` 合并视频
 
@@ -156,7 +156,7 @@ Claude Code:
    - 更新提示词，重新生成
 5. 确认满意后，videoclaw storyboard --project mars-video
 6. 故事板交互确认（同上）
-7. videoclaw i2v --project mars-video
+7. videoclaw i2v-from-storyboard --project mars-video
 8. videoclaw audio --project mars-video
 9. videoclaw merge --project mars-video
 ```
