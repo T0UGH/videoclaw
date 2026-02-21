@@ -73,6 +73,53 @@ description: Use when user wants to create a complete video from a description i
 videoclaw assets --project <name> --use-local
 ```
 
+## 生成规则
+
+### 图像生成 (assets / storyboard)
+
+**重要**: 每个 asset/storyboard 会生成多张候选（默认 4 张），让用户选择最喜欢的一张。
+
+```bash
+# 生成的候选文件
+assets/character_astronaut_1.png
+assets/character_astronaut_2.png
+assets/character_astronaut_3.png
+assets/character_astronaut_4.png
+```
+
+**选择流程**:
+1. 展示所有候选图片
+2. 让用户选择最喜欢的一张
+3. 将选择结果记录到 state.json
+
+**调整生成数量**:
+```bash
+# 默认生成 4 张
+videoclaw assets --project mars-video
+
+# 只需要 1 张
+videoclaw assets --project mars-video --num-variants 1
+
+# 生成更多
+videoclaw assets --project mars-video --num-variants 6
+```
+
+### 视频生成 (i2v)
+
+**重要**: 视频生成不生成多张候选，每次只生成 1 个（因为费用较高）。
+
+### 独立命令
+
+如需单独调用 T2I/I2I，可以使用独立命令:
+
+```bash
+# 文生图
+videoclaw t2i --prompt "宇航员在火星上" --output astronaut.png
+
+# 图生图
+videoclaw i2i --input astronaut.png --prompt "穿红色制服" --output astronaut_red.png
+```
+
 ## 状态检查
 
 每步完成后检查 `videoclaw status --project <project-name>` 确认状态。
