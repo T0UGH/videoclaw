@@ -1,10 +1,10 @@
-# Videoclaw
+# videoclaw
 
 AI 视频创作 CLI 工具，专为 Claude Code 设计。
 
 ## 概述
 
-Videoclaw 是一个 AI 视频生成工具，通过命令行与 Claude Code 集成，支持多种 AI 模型提供商，帮助用户快速创建视频内容。
+videoclaw 是一个 AI 视频生成工具，通过命令行与 Claude Code 集成，支持多种 AI 模型提供商，帮助用户快速创建视频内容。
 
 ## 两种创作模式
 
@@ -68,7 +68,7 @@ export GOOGLE_API_KEY=your-api-key       # Google Gemini
 
 ## 安装 Skills（Claude Code 插件）
 
-要使用 Claude Code Skills，需要安装 Videoclaw 插件市场：
+要使用 Claude Code Skills，需要安装 videoclaw 插件市场：
 
 ```bash
 # 在 Claude Code 中运行
