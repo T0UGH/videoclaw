@@ -60,7 +60,12 @@ def init(project_name: str, project_dir: Optional[str], interactive: bool):
         if config_file.exists():
             click.echo(f"项目 {project_name} 已存在", err=True)
             return
-        # 目录存在但没有配置文件，继续创建
+        # 确保必要的子目录存在
+        (project_path / ".videoclaw").mkdir(exist_ok=True)
+        (project_path / "assets").mkdir(exist_ok=True)
+        (project_path / "storyboard").mkdir(exist_ok=True)
+        (project_path / "videos").mkdir(exist_ok=True)
+        (project_path / "audio").mkdir(exist_ok=True)
     else:
         project_path.mkdir(parents=True)
         (project_path / ".videoclaw").mkdir()
