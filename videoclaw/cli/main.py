@@ -15,6 +15,7 @@ from videoclaw.cli.commands.preview import preview
 from videoclaw.cli.commands.config import config
 from videoclaw.cli.commands.validate import validate
 from videoclaw.cli.commands.t2i import t2i
+from videoclaw.cli.commands.i2i import i2i
 
 
 DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
@@ -37,6 +38,7 @@ main.add_command(preview)
 main.add_command(config)
 main.add_command(validate)
 main.add_command(t2i)
+main.add_command(i2i)
 
 
 @main.command()
