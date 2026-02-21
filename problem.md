@@ -27,31 +27,35 @@
   - videoclaw/cli/commands/t2i.py
   - videoclaw/cli/commands/i2i.py
 
-### 7. video-init支持交互式配置
-- **状态**: 已处理
-- **说明**: init 命令已支持交互式选择图像提供商、视频提供商、存储方式
-- **相关文件**:
-  - videoclaw/cli/main.py (行 47-90)
-
----
-
-## ⚠️ 未处理
-
 ### 10 提供了t2i和i2i的命令但是没有提供对应的skill
+- **状态**: 已处理
+- **说明**: 已创建 video-t2i 和 video-i2i skill
+- **相关文件**:
+  - skills/video-t2i/SKILL.md
+  - skills/video-i2i/SKILL.md
 
 ### 11 i2v只支持standard模式，不支持quick模式
-- **状态**: 未处理
-- **说明**: 当前 i2v 命令依赖 storyboard 步骤（图片故事板），quick-create 跳过图片故事板后无法使用。需要新增一个专门给 quick 模式用的 command
+- **状态**: 已处理
+- **说明**: i2v 命令已重构为通用模式，支持传入图片和 prompt，quick-create 可直接使用
 - **相关文件**:
   - videoclaw/cli/commands/i2v.py
+  - skills/video-i2v/SKILL.md
+
+### 9. 待测试Google Drive
+- **状态**: 未处理
+- **说明**: google_drive.py 已实现，需要实际测试上传功能
+- **相关文件**:
+  - videoclaw/storage/google_drive.py
+
+### 5. 上传包到PyPI
+- **状态**: 未处理
+- **说明**: 需要将包上传到 PyPI 以支持 `uvx` 使用，并在 skill 和文档中说明下载方式
 
 ### 4. 测试方法应该先安装这个marketplace
 - **状态**: 未处理
 - **说明**: 需要在测试文档中说明如何先安装 marketplace 再测试
 
-### 5. 上传包到PyPI
-- **状态**: 未处理
-- **说明**: 需要将包上传到 PyPI 以支持 `uvx` 使用，并在 skill 和文档中说明下载方式
+## 暂不处理
 
 ### 6. 给用户选用asset/frame作为参考的机会
 - **状态**: 部分处理
@@ -63,8 +67,4 @@
 - **相关文件**:
   - videoclaw/models/volcengine/tts.py (行 35-36)
 
-### 9. 待测试Google Drive
-- **状态**: 未处理
-- **说明**: google_drive.py 已实现，需要实际测试上传功能
-- **相关文件**:
-  - videoclaw/storage/google_drive.py
+
