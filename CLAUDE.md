@@ -81,6 +81,8 @@ videoclaw/
 2. **全局配置**：`~/.videoclaw/config.yaml`
 3. **项目配置**：`<project>/.videoclaw/config.yaml`
 
+完整配置项清单见 [docs/configuration.md](docs/configuration.md)
+
 ### 项目存储结构
 
 ```

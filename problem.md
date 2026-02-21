@@ -1,24 +1,62 @@
-# 1 生成asset和storyboard时应该多生成几张让用户能选择, 但生成视频的时候最好不要,因为比较费钱
-一定要把图片四选一规则highlight都skills里
+# 问题列表
 
-# 2 后面的流程都是在写临时脚本, 没有用cli工具
+---
 
-# 3 cli工具直接提供i2i和t2i之类的命令即可, 因为有一些微调其实不在流程里
+## ✅ 已处理
 
-# 4 测试方法 应该先安装这个marketplace, 然后再测试
+### 1. 生成asset和storyboard时多选一
+- **状态**: 已处理
+- **说明**: 已在 video-standard-create 和 video-quick-create skill 中实现多张候选让用户选择
+- **相关文件**:
+  - skills/video-standard-create/SKILL.md (行 80-93)
+  - skills/video-quick-create/SKILL.md
 
-/Users/wangguiping/workspace/github/videoclaw/.claude-plugin/marketplace.json
+### 2. 后面流程使用CLI工具
+- **状态**: 已处理
+- **说明**: 所有流程已改用 CLI 命令 (videoclaw i2v, videoclaw audio, videoclaw merge)
+- **相关文件**:
+  - skills/video-i2v/SKILL.md
+  - skills/video-audio/SKILL.md
+  - skills/video-merge/SKILL.md
+  - skills/video-standard-create/SKILL.md
 
-# 5 后续需要把这个包上传到pypl上,方便直接uvx使用, 另外需要skill和claude.md和readme的prompt中给出下载方式
+### 3. CLI工具提供i2i和t2i命令
+- **状态**: 已处理
+- **说明**: 已实现 t2i.py 和 i2i.py 命令
+- **相关文件**:
+  - videoclaw/cli/commands/t2i.py
+  - videoclaw/cli/commands/i2i.py
 
-# 6 给用户选用哪些asset或前面的frame作为参考的机会
+### 7. video-init支持交互式配置
+- **状态**: 已处理
+- **说明**: init 命令已支持交互式选择图像提供商、视频提供商、存储方式
+- **相关文件**:
+  - videoclaw/cli/main.py (行 47-90)
 
-# 7 /Users/wangguiping/workspace/github/videoclaw/skills/video-init/SKILL.md 这个skill不够好，初始化项目的时候可以让用户配置配置文件呀
+### 8. 火山音频模型接入
+- **状态**: 已处理
+- **说明**: 已实现 VolcEngineTTS 后端
+- **相关文件**:
+  - videoclaw/models/volcengine/tts.py
 
-/Users/wangguiping/videoclaw-projects/demo-video/.videoclaw/config.yaml
+---
 
-# 8 待接入火山音频模型
+## ⚠️ 未处理
 
-# 9 待测试google drive
+### 4. 测试方法应该先安装这个marketplace
+- **状态**: 未处理
+- **说明**: 需要在测试文档中说明如何先安装 marketplace 再测试
 
+### 5. 上传包到PyPI
+- **状态**: 未处理
+- **说明**: 需要将包上传到 PyPI 以支持 `uvx` 使用，并在 skill 和文档中说明下载方式
 
+### 6. 给用户选用asset/frame作为参考的机会
+- **状态**: 部分处理
+- **说明**: video-quick-create 已支持 I2I 模式（人物参考图），但 storyboard 阶段选择参考帧的功能需要进一步确认
+
+### 9. 待测试Google Drive
+- **状态**: 未处理
+- **说明**: google_drive.py 已实现，需要实际测试上传功能
+- **相关文件**:
+  - videoclaw/storage/google_drive.py
