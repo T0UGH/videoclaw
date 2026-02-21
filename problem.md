@@ -41,9 +41,11 @@
   - videoclaw/cli/commands/i2v.py
   - skills/video-i2v/SKILL.md
 
+## 未处理  
+
 ### 9. 待测试Google Drive
-- **状态**: 未处理
-- **说明**: google_drive.py 已实现，需要实际测试上传功能
+- **状态**: 已处理
+- **说明**: 已测试上传功能，OAuth 认证后成功上传到 Google Drive
 - **相关文件**:
   - videoclaw/storage/google_drive.py
 
