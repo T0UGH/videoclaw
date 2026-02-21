@@ -48,67 +48,37 @@ main.add_command(upload)
 @main.command()
 @click.argument("project_name")
 @click.option("--dir", "project_dir", default=None, help="项目目录路径")
-@click.option("--interactive/--no-interactive", default=True, help="交互式配置")
+@click.option("--interactive/--no-interactive", default=False, help="交互式配置")
 def init(project_name: str, project_dir: Optional[str], interactive: bool):
     """初始化新的视频项目"""
     projects_dir = Path(project_dir) if project_dir else DEFAULT_PROJECTS_DIR
     project_path = projects_dir / project_name
 
     if project_path.exists():
-        click.echo(f"错误: 项目 {project_name} 已存在", err=True)
-        return
-
-    # 创建项目结构
-    project_path.mkdir(parents=True)
-    (project_path / ".videoclaw").mkdir()
-    (project_path / "assets").mkdir()
-    (project_path / "storyboard").mkdir()
-    (project_path / "videos").mkdir()
-    (project_path / "audio").mkdir()
-
-    # 创建配置
-    if interactive:
-        # 1. 选择图像提供商
-        click.echo("\n选择图像生成提供商:")
-        click.echo("  1) volcengine (火山引擎 Seedream)")
-        click.echo("  2) dashscope (阿里云)")
-        click.echo("  3) gemini (Google)")
-        click.echo("  4) mock (测试用)")
-        provider_map = {"1": "volcengine", "2": "dashscope", "3": "gemini", "4": "mock"}
-        choice = click.prompt("请选择 (1-4)", type=str, default="1")
-        image_provider = provider_map.get(choice, "volcengine")
-
-        # 2. 选择视频提供商
-        click.echo("\n选择视频生成提供商:")
-        click.echo("  1) volcengine (火山引擎 Seedance)")
-        click.echo("  2) dashscope (阿里云)")
-        click.echo("  3) mock (测试用)")
-        choice = click.prompt("请选择 (1-3)", type=str, default="1")
-        video_provider = provider_map.get(choice, "volcengine")
-
-        # 3. 选择存储方式
-        click.echo("\n选择存储方式:")
-        click.echo("  1) local (本地存储)")
-        click.echo("  2) google_drive (上传到 Google Drive)")
-        choice = click.prompt("请选择 (1-2)", type=str, default="1")
-        storage_provider = "local" if choice == "1" else "google_drive"
-
-        # 生成配置
-        config = {
-            "project_name": project_name,
-            "version": "0.1.0",
-            "models": {
-                "image": {"provider": image_provider},
-                "video": {"provider": video_provider},
-            },
-            "storage": {"provider": storage_provider}
-        }
+        # 检查配置文件是否存在，不存在则创建
+        config_file = project_path / ".videoclaw" / "config.yaml"
+        if config_file.exists():
+            click.echo(f"项目 {project_name} 已存在", err=True)
+            return
+        # 目录存在但没有配置文件，继续创建
     else:
-        config = {
-            "project_name": project_name,
-            "version": "0.1.0",
-            "storage": {"provider": "local"}
-        }
+        project_path.mkdir(parents=True)
+        (project_path / ".videoclaw").mkdir()
+        (project_path / "assets").mkdir()
+        (project_path / "storyboard").mkdir()
+        (project_path / "videos").mkdir()
+        (project_path / "audio").mkdir()
+
+    # 创建配置（默认非交互式）
+    config = {
+        "project_name": project_name,
+        "version": "0.1.0",
+        "models": {
+            "image": {"provider": "dashscope"},
+            "video": {"provider": "dashscope"},
+        },
+        "storage": {"provider": "local"}
+    }
 
     state = {
         "project_id": project_name,
