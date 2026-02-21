@@ -15,21 +15,34 @@ class Config:
         self._project_path = project_path
         self._load()
 
+    def _deep_merge(base: dict, override: dict) -> dict:
+        """深度合并两个字典，override 优先"""
+        result = base.copy()
+        for key, value in override.items():
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+                result[key] = Config._deep_merge(result[key], value)
+            else:
+                result[key] = value
+        return result
+
     def _load(self):
         # 1. 加载全局配置
+        global_config = {}
         global_config_path = Path.home() / ".videoclaw" / "config.yaml"
         if global_config_path.exists():
             with open(global_config_path) as f:
-                self._config = yaml.safe_load(f) or {}
+                global_config = yaml.safe_load(f) or {}
 
-        # 2. 加载项目配置（覆盖全局配置）
+        # 2. 加载项目配置
+        project_config = {}
         if self._project_path:
             project_config_path = self._project_path / ".videoclaw" / "config.yaml"
             if project_config_path.exists():
                 with open(project_config_path) as f:
                     project_config = yaml.safe_load(f) or {}
-                    # 项目配置覆盖全局配置
-                    self._config.update(project_config)
+
+        # 3. 合并：全局 + 项目（项目覆盖全局）
+        self._config = Config._deep_merge(global_config, project_config)
 
     def get(self, key: str, default: Any = None) -> Any:
         """获取配置值"""
