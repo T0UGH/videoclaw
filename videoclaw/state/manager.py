@@ -54,3 +54,26 @@ class StateManager:
 
     def get_step(self, step: str) -> Optional[Dict[str, Any]]:
         return self._state.get("steps", {}).get(step)
+
+    def update_selection(self, step: str, chosen: str, alternatives: list):
+        """更新用户选择"""
+        if "selections" not in self._state:
+            self._state["selections"] = {}
+
+        self._state["selections"][step] = {
+            "chosen": chosen,
+            "alternatives": alternatives,
+            "updated_at": datetime.now().isoformat()
+        }
+        self.save()
+
+    def get_selection(self, step: str) -> Optional[dict]:
+        """获取选择"""
+        return self._state.get("selections", {}).get(step)
+
+    def get_all_alternatives(self) -> list:
+        """获取所有候选（可用于参考）"""
+        alternatives = []
+        for step, data in self._state.get("selections", {}).items():
+            alternatives.extend(data.get("alternatives", []))
+        return alternatives
