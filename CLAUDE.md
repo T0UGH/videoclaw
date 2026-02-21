@@ -21,6 +21,11 @@ pytest tests/test_config.py::test_xxx  # 运行单个测试
 ruff check .
 black .
 
+# 发布到 PyPI
+uvx --from build pyproject-build            # 构建包
+uvx twine upload dist/*                     # 发布到 PyPI
+# 注意：发布前需要先 bump 版本号（修改 pyproject.toml 中的 version）
+
 # 初始化项目
 videoclaw init my-project
 

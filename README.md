@@ -66,6 +66,21 @@ export DASHSCOPE_API_KEY=your-api-key   # 阿里云
 export GOOGLE_API_KEY=your-api-key       # Google Gemini
 ```
 
+## 发布新版本
+
+```bash
+# 1. 更新版本号（修改 pyproject.toml 中的 version）
+# 2. 提交更改
+git add pyproject.toml && git commit -m "chore: bump version to x.x.x"
+
+# 3. 推送到 GitHub
+git push
+
+# 4. 构建并发布到 PyPI
+uvx --from build pyproject-build
+uvx twine upload dist/*
+```
+
 ## 安装 Skills（Claude Code 插件）
 
 要使用 Claude Code Skills，需要安装 videoclaw 插件市场：
