@@ -20,7 +20,8 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 @click.option("--project", "-p", required=True, help="项目名称")
 @click.option("--provider", default="volcengine", help="模型提供商: dashscope, volcengine, gemini, mock")
 @click.option("--use-local", is_flag=True, help="使用本地图片，不调用T2I")
-def assets(project: str, provider: str, use_local: bool):
+@click.option("--num-variants", "-n", default=1, type=int, help="生成候选数量 (默认1)")
+def assets(project: str, provider: str, use_local: bool, num_variants: int):
     """生成角色和场景图片资产"""
     project_path = DEFAULT_PROJECTS_DIR / project
     logger = get_logger(project_path)
@@ -68,36 +69,59 @@ def assets(project: str, provider: str, use_local: bool):
         char_name = char.get("name", "character")
         char_desc = char.get("description", "")
 
-        # 检查本地图片
-        dest_path = assets_dir / f"character_{char_name}.png"
+        # 生成多个变体
+        variants = []
+        chosen_path = None
 
-        if dest_path.exists():
-            click.echo(f"使用本地图片: {dest_path}")
-            result["characters"][char_name] = str(dest_path)
-            continue
+        for i in range(num_variants):
+            # 构建 variant 文件名
+            if num_variants > 1:
+                dest_path = assets_dir / f"character_{char_name}_{i+1}.png"
+            else:
+                dest_path = assets_dir / f"character_{char_name}.png"
 
-        # AI 生成
-        prompt = char_desc
-        try:
-            gen_result = image_backend.text_to_image(prompt)
-            if gen_result.local_path:
-                shutil.copy(gen_result.local_path, dest_path)
+            # 检查本地图片（只检查第一个）
+            if i == 0 and dest_path.exists():
+                click.echo(f"使用本地图片: {dest_path}")
                 result["characters"][char_name] = str(dest_path)
-                logger.info(f"已保存: {dest_path}")
-                click.echo(f"  已保存: {dest_path}")
+                variants.append(str(dest_path))
+                chosen_path = str(dest_path)
+                break
 
-                # 上传到云盘
-                cloud_url = upload_to_cloud(
-                    dest_path,
-                    f"videoclaw/{project}/assets/{dest_path.name}",
-                    config,
-                    project
-                )
-                if cloud_url:
-                    click.echo(f"  云盘链接: {cloud_url}")
-        except Exception as e:
-            logger.error(f"生成失败: {e}")
-            click.echo(f"  生成失败: {e}")
+            # AI 生成
+            prompt = char_desc
+            try:
+                gen_result = image_backend.text_to_image(prompt)
+                if gen_result.local_path:
+                    shutil.copy(gen_result.local_path, dest_path)
+                    variants.append(str(dest_path))
+                    logger.info(f"已保存: {dest_path}")
+                    click.echo(f"  已保存: {dest_path}")
+
+                    # 第一个变体作为默认选择
+                    if i == 0:
+                        chosen_path = str(dest_path)
+                        result["characters"][char_name] = chosen_path
+
+                        # 上传到云盘
+                        cloud_url = upload_to_cloud(
+                            dest_path,
+                            f"videoclaw/{project}/assets/{dest_path.name}",
+                            config,
+                            project
+                        )
+                        if cloud_url:
+                            click.echo(f"  云盘链接: {cloud_url}")
+            except Exception as e:
+                logger.error(f"生成失败: {e}")
+                click.echo(f"  生成失败: {e}")
+
+        # 记录所有变体到结果中
+        if num_variants > 1 and variants:
+            result["characters"][char_name] = {
+                "chosen": chosen_path,
+                "variants": variants
+            }
 
     # 生成场景图片
     scenes = analyze_data.get("scenes", [])
@@ -107,36 +131,59 @@ def assets(project: str, provider: str, use_local: bool):
         scene_name = scene.get("name", "scene")
         scene_desc = scene.get("description", "")
 
-        # 检查本地图片
-        dest_path = assets_dir / f"scene_{scene_name}.png"
+        # 生成多个变体
+        variants = []
+        chosen_path = None
 
-        if dest_path.exists():
-            click.echo(f"使用本地图片: {dest_path}")
-            result["scenes"][scene_name] = str(dest_path)
-            continue
+        for i in range(num_variants):
+            # 构建 variant 文件名
+            if num_variants > 1:
+                dest_path = assets_dir / f"scene_{scene_name}_{i+1}.png"
+            else:
+                dest_path = assets_dir / f"scene_{scene_name}.png"
 
-        # AI 生成
-        prompt = scene_desc
-        try:
-            gen_result = image_backend.text_to_image(prompt)
-            if gen_result.local_path:
-                shutil.copy(gen_result.local_path, dest_path)
+            # 检查本地图片（只检查第一个）
+            if i == 0 and dest_path.exists():
+                click.echo(f"使用本地图片: {dest_path}")
                 result["scenes"][scene_name] = str(dest_path)
-                logger.info(f"已保存: {dest_path}")
-                click.echo(f"  已保存: {dest_path}")
+                variants.append(str(dest_path))
+                chosen_path = str(dest_path)
+                break
 
-                # 上传到云盘
-                cloud_url = upload_to_cloud(
-                    dest_path,
-                    f"videoclaw/{project}/assets/{dest_path.name}",
-                    config,
-                    project
-                )
-                if cloud_url:
-                    click.echo(f"  云盘链接: {cloud_url}")
-        except Exception as e:
-            logger.error(f"生成失败: {e}")
-            click.echo(f"  生成失败: {e}")
+            # AI 生成
+            prompt = scene_desc
+            try:
+                gen_result = image_backend.text_to_image(prompt)
+                if gen_result.local_path:
+                    shutil.copy(gen_result.local_path, dest_path)
+                    variants.append(str(dest_path))
+                    logger.info(f"已保存: {dest_path}")
+                    click.echo(f"  已保存: {dest_path}")
+
+                    # 第一个变体作为默认选择
+                    if i == 0:
+                        chosen_path = str(dest_path)
+                        result["scenes"][scene_name] = chosen_path
+
+                        # 上传到云盘
+                        cloud_url = upload_to_cloud(
+                            dest_path,
+                            f"videoclaw/{project}/assets/{dest_path.name}",
+                            config,
+                            project
+                        )
+                        if cloud_url:
+                            click.echo(f"  云盘链接: {cloud_url}")
+            except Exception as e:
+                logger.error(f"生成失败: {e}")
+                click.echo(f"  生成失败: {e}")
+
+        # 记录所有变体到结果中
+        if num_variants > 1 and variants:
+            result["scenes"][scene_name] = {
+                "chosen": chosen_path,
+                "variants": variants
+            }
 
     state.update_step("assets", "completed", result)
     state.set_status("assets_generated")
