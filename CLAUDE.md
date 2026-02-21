@@ -99,12 +99,12 @@ videoclaw/
 支持跨厂商混用：
 - **dashscope**：图像(wan2.6-t2i)、视频(wan2.6-i2v)、音频(cosyvoice-v2)
 - **volcengine**：图像(seedream)、视频(seedance)、音频(tts)
-- **gemini**：图像生成 (gemini-2.0-flash-exp-image-generation, imagen-3.0-fast)
+- **gemini**：图像生成 (gemini-3-pro-image-preview, gemini-2.5-flash-image)
 - **mock**：测试用
 
 ### Google Gemini
 
-- **gemini**: 图像生成 (gemini-2.0-flash-exp-image-generation, imagen-3.0-fast)
+- **gemini**: 图像生成 (gemini-3-pro-image-preview, gemini-2.5-flash-image)
 - 使用 `GOOGLE_API_KEY` 环境变量认证
 - 安装: `pip install google-genai`
 

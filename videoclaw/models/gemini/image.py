@@ -17,21 +17,17 @@ logger = get_logger(name="gemini.image")
 class GeminiImageBackend(ImageBackend):
     """Google Gemini 图像生成后端 (Nano Banana)"""
 
-    DEFAULT_MODEL = "gemini-2.5-flash-image"
+    DEFAULT_MODEL = "gemini-3-pro-image-preview"
 
     SUPPORTED_MODELS = [
+        # Gemini 3 Pro Image (Nano Banana Pro) - 质量优先
+        "gemini-3-pro-image-preview",
         # Gemini 2.5 Flash Image (Nano Banana) - 速度优先
         "gemini-2.5-flash-image",  # 正式版
         "gemini-2.5-flash-image-preview",  # 预览版
-        # Gemini 3 Pro Image (Nano Banana Pro) - 质量优先 (需要 Vertex AI)
-        "gemini-3-pro-image-preview",
         # Imagen 4 系列
         "imagen-4.0-generate-preview-06-06",
         "imagen-4.0-ultra-generate-preview-06-06",
-        # 旧模型 (已弃用)
-        "gemini-2.0-flash-exp-image-generation",
-        "imagen-3.0-fast",
-        "imagen-3.0-generate-002",
     ]
 
     def __init__(self, model: str, config: Dict[str, Any]):

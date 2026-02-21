@@ -10,9 +10,9 @@
 
 | 模型 | 名称 | 特点 | 推荐场景 |
 |------|------|------|----------|
-| `gemini-2.0-flash-exp-image-generation` | Nano Banana | 实验模型，原生集成，最新能力 | 快速原型、个人项目 |
-| `imagen-3.0-fast` | Imagen 3.0 Fast | 快速生成，性价比高 | 批量生成 |
-| `imagen-3.0-generate-002` | Imagen 3.0 | 最高质量 | 最终输出 |
+| `gemini-3-pro-image-preview` | Nano Banana Pro | 质量优先，最新能力 | 高质量需求 |
+| `gemini-2.5-flash-image` | Nano Banana | 速度优先，性价比高 | 快速原型、个人项目 |
+| `imagen-4.0-generate-preview-06-06` | Imagen 4.0 | 最高质量 | 最终输出 |
 
 **安装:**
 ```bash
@@ -31,7 +31,7 @@ client = genai.Client(api_key=os.environ["GOOGLE_API_KEY"])
 ```python
 from videoclaw.models.factory import get_image_backend
 
-backend = get_image_backend("gemini", "gemini-2.0-flash-exp-image-generation", {
+backend = get_image_backend("gemini", "gemini-3-pro-image-preview", {
     "api_key": os.environ["GOOGLE_API_KEY"]
 })
 
@@ -44,9 +44,8 @@ result = backend.text_to_image("A cat sitting on a couch")
 
 | 模型 | 名称 | 特点 |
 |------|------|------|
-| `imagen-4.0-fast` | Imagen 4.0 Fast | 最高质量，最新版本 |
-| `imagen-3.0-fast` | Imagen 3.0 Fast | 性价比高 |
-| `gemini-2.0-flash-exp-001` | Gemini Flash | 原生图像生成 |
+| `imagen-4.0-ultra-generate-preview-06-06` | Imagen 4.0 Ultra | 最高质量 |
+| `imagen-4.0-generate-preview-06-06` | Imagen 4.0 | 高质量 |
 
 **安装:**
 ```bash
@@ -89,7 +88,7 @@ export GOOGLE_API_KEY="your-api-key"
 
 # 在项目中使用
 videoclaw config --project my-project --set models.image.provider=gemini
-videoclaw config --project my-project --set models.image.model=gemini-2.0-flash-exp-image-generation
+videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
 ```
 
 ## 相关链接

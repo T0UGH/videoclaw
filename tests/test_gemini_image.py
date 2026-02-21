@@ -9,8 +9,8 @@ def test_gemini_image_backend_init():
     """Test Gemini image backend initialization"""
     from videoclaw.models.gemini.image import GeminiImageBackend
 
-    backend = GeminiImageBackend("gemini-2.0-flash-exp-image-generation", {"api_key": "test-key"})
-    assert backend.model == "gemini-2.0-flash-exp-image-generation"
+    backend = GeminiImageBackend("gemini-3-pro-image-preview", {"api_key": "test-key"})
+    assert backend.model == "gemini-3-pro-image-preview"
     assert backend.api_key == "test-key"
 
 
@@ -20,7 +20,7 @@ def test_gemini_image_backend_init_from_env():
 
     # Set the environment variable
     with patch.dict(os.environ, {"GOOGLE_API_KEY": "env-test-key"}):
-        backend = GeminiImageBackend("imagen-3.0-fast", {})
+        backend = GeminiImageBackend("gemini-2.5-flash-image", {})
         assert backend.api_key == "env-test-key"
 
 
@@ -29,4 +29,4 @@ def test_text_to_image_requires_api_key():
     from videoclaw.models.gemini.image import GeminiImageBackend
 
     with pytest.raises(ValueError, match="Google Gemini API key is required"):
-        GeminiImageBackend("gemini-2.0-flash-exp-image-generation", {})
+        GeminiImageBackend("gemini-3-pro-image-preview", {})

@@ -70,7 +70,7 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 |--------|-------------|--------------|-------------|
 | volcengine | Seedream | Seedance | TTS |
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
-| gemini | gemini-2.0-flash-exp | - | - |
+| gemini | gemini-3-pro-image-preview | - | - |
 | mock | 测试用 | 测试用 | 测试用 |
 
 ## 配置

@@ -3,11 +3,11 @@
   "description": "Videoclaw CLI skills for AI video generation workflow",
   "version": "1.0.0",
   "author": {
-    "name": "Your Name",
-    "email": "your@email.com"
+    "name": "T0UGH",
+    "email": "tough.neu.edu@gmail.com"
   },
-  "homepage": "https://github.com/haha/videoclaw",
-  "repository": "https://github.com/haha/videoclaw",
+  "homepage": "https://github.com/T0UGH/videoclaw",
+  "repository": "https://github.com/T0UGH/videoclaw",
   "license": "MIT",
   "keywords": ["videoclaw", "video", "ai", "generation"]
 }

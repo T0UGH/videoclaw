@@ -176,7 +176,7 @@ videoclaw config --project mars-video --set models.video.provider=volcengine
 
 ```bash
 videoclaw config --project mars-video --set models.image.provider=gemini
-videoclaw config --project mars-video --set models.image.model=gemini-2.0-flash-exp-image-generation
+videoclaw config --project mars-video --set models.image.model=gemini-3-pro-image-preview
 ```
 
 需要设置环境变量:

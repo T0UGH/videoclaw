@@ -2,8 +2,8 @@
   "name": "videoclaw-skills",
   "description": "Videoclaw CLI skills for AI video generation workflow",
   "owner": {
-    "name": "Your Name",
-    "email": "your@email.com"
+    "name": "T0UGH",
+    "email": "tough.neu.edu@gmail.com"
   },
   "plugins": [
     {
@@ -12,8 +12,8 @@
       "version": "1.0.0",
       "source": "./skills",
       "author": {
-        "name": "Your Name",
-        "email": "your@email.com"
+        "name": "T0UGH",
+        "email": "tough.neu.edu@gmail.com"
       }
     }
   ]
