@@ -1,5 +1,5 @@
 {
-  "name": "videoclaw-skills",
+  "name": "videoclaw",
   "description": "Videoclaw CLI skills for AI video generation workflow",
   "owner": {
     "name": "T0UGH",
@@ -7,9 +7,9 @@
   },
   "plugins": [
     {
-      "name": "videoclaw-skills",
+      "name": "videoclaw",
       "description": "Videoclaw CLI skills for AI video generation workflow",
-      "version": "1.0.0",
+      "version": "0.1.0",
       "source": "./skills",
       "author": {
         "name": "T0UGH",

@@ -68,6 +68,17 @@ export DASHSCOPE_API_KEY=your-api-key   # 阿里云
 export GOOGLE_API_KEY=your-api-key       # Google Gemini
 ```
 
+## 安装 Skills（Claude Code 插件）
+
+要使用 Claude Code Skills，需要安装 Videoclaw 插件市场：
+
+```bash
+# 在 Claude Code 中运行
+/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
+```
+
+安装后，Claude Code 会自动加载所有 skills。
+
 ## 快速开始
 
 ```bash
