@@ -47,8 +47,6 @@
 - **相关文件**:
   - videoclaw/storage/google_drive.py
 
-## 未处理  
-
 ### 5. 上传包到PyPI
 - **状态**: 已处理
 - **说明**: 已发布到 PyPI，可以使用 `uvx videoclaw` 运行
@@ -56,6 +54,50 @@
 ### 4. 测试方法应该先安装这个marketplace
 - **状态**: 未处理
 - **说明**: 需要在测试文档中说明如何先安装 marketplace 再测试
+
+## 未处理  
+
+### videoclaw init 默认应该是非交互式的, 交互应该放在video-init这个skills中
+
+Usage: videoclaw init [OPTIONS] PROJECT_NAME
+
+  初始化新的视频项目
+
+Options:
+  --dir TEXT                      项目目录路径
+  --interactive / --no-interactive
+                                  交互式配置
+  --help                          Show this message and exit.
+
+
+total 0
+drwxr-xr-x@ 7 wangguiping  staff  224 Feb 21 22:17 .
+drwxr-xr-x@ 5 wangguiping  staff  160 Feb 21 22:17 ..
+drwxr-xr-x@ 2 wangguiping  staff   64 Feb 21 22:17 .videoclaw
+drwxr-xr-x@ 2 wangguiping  staff   64 Feb 21 22:17 assets
+drwxr-xr-x@ 2 wangguiping  staff   64 Feb 21 22:17 audio
+drwxr-xr-x@ 2 wangguiping  staff   64 Feb 21 22:17 storyboard
+drwxr-xr-x@ 2 wangguiping  staff   64 Feb 21 22:17 videos
+
+
+最开始初始化的项目中没有配置文件, 主要是因为skill写的不好导致的没有配置文件,以及需要一个全局的配置文件, 没有找到在哪
+
+找到原因了。看 main.py:57-59：
+
+
+if project_path.exists():
+    click.echo(f"错误: 项目 {project_name} 已存在", err=True)
+    return
+问题在于：当项目目录已存在时，代码直接 return，跳过了后面创建配置文件的逻辑（第 120-124 行）。
+
+具体情况：
+
+第一次运行 uvx videoclaw init lulu-test（无 --no-interactive）进入了交互模式
+交互式选择时可能部分创建了目录结构（或者之前某次运行已创建）
+第二次运行 uvx videoclaw init lulu-test --no-interactive 时检测到目录已存在
+立即返回，没有创建 config.yaml
+这是一个 bug：当使用 --no-interactive 时，即使项目目录已存在，也应该尝试创建配置文件，或者至少应该给出更明确的提示。
+
 
 ## 暂不处理
 
