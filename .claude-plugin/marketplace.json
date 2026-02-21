@@ -10,7 +10,7 @@
       "name": "videoclaw",
       "description": "Videoclaw CLI skills for AI video generation workflow",
       "version": "0.1.0",
-      "source": "./skills",
+      "source": "./",
       "author": {
         "name": "T0UGH",
         "email": "tough.neu.edu@gmail.com"
