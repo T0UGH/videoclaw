@@ -39,6 +39,12 @@
 
 ### 10 提供了t2i和i2i的命令但是没有提供对应的skill
 
+### 11 i2v只支持standard模式，不支持quick模式
+- **状态**: 未处理
+- **说明**: 当前 i2v 命令依赖 storyboard 步骤（图片故事板），quick-create 跳过图片故事板后无法使用。需要新增一个专门给 quick 模式用的 command
+- **相关文件**:
+  - videoclaw/cli/commands/i2v.py
+
 ### 4. 测试方法应该先安装这个marketplace
 - **状态**: 未处理
 - **说明**: 需要在测试文档中说明如何先安装 marketplace 再测试

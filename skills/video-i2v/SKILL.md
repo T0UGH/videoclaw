@@ -1,29 +1,30 @@
 ---
 name: video-i2v
-description: Use when user needs to convert storyboard images into video clips
+description: Use when user needs to convert images into video clips with custom prompts
 ---
 
-# video-i2v - 图生视频
+# video-i2v - 图生视频（通用模式）
 
 ## 概述
-将故事板图片转换为视频片段。
+
+将图片转换为视频片段，支持自定义 prompt。
 
 ## 使用方式
 
 ```bash
-videoclaw i2v --project my-project
+videoclaw i2v --project my-project -i image1.png -t "prompt1" -i image2.png -t "prompt2"
 ```
 
 ## 参数
 
 - `--project, -p`: 项目名称（必填）
-
-## 前置条件
-
-需要先完成 `video:storyboard`
+- `--image, -i`: 图片路径（必填，可多次指定）
+- `--prompt, -t`: 传给视频模型的 prompt（必填，与图片数量一致）
+- `--provider`: 模型提供商（可选）
+- `--resolution, -r`: 分辨率（可选）
 
 ## 示例
 
 ```
-Claude Code: videoclaw i2v --project mars-video
+Claude Code: videoclaw i2v --project mars-video -i assets/frame1.png -t "角色向前行走" -i assets/frame2.png -t "角色停下来回头看"
 ```
