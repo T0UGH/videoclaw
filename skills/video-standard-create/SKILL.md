@@ -1,9 +1,9 @@
 ---
-name: video-create
+name: video-standard-create
 description: Use when user wants to create a complete video from a description in one step
 ---
 
-# video-create - 创建视频
+# video-standard-create - 创建视频
 
 ## 概述
 一句话创建完整视频，自动执行所有步骤。交互确认在 skill 层通过 AskUserQuestion 实现。
