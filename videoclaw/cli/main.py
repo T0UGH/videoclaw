@@ -9,6 +9,7 @@ from typing import Optional
 from videoclaw.cli.commands.assets import assets
 from videoclaw.cli.commands.storyboard import storyboard
 from videoclaw.cli.commands.i2v import i2v
+from videoclaw.cli.commands.i2v_from_storyboard import i2v_from_storyboard
 from videoclaw.cli.commands.audio import audio
 from videoclaw.cli.commands.merge import merge
 from videoclaw.cli.commands.preview import preview
@@ -32,6 +33,7 @@ def main():
 main.add_command(assets)
 main.add_command(storyboard)
 main.add_command(i2v)
+main.add_command(i2v_from_storyboard)
 main.add_command(audio)
 main.add_command(merge)
 main.add_command(preview)
