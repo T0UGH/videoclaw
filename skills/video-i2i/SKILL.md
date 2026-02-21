@@ -11,6 +11,8 @@ Transform or edit images using AI. Independent command for converting reference 
 
 ## Usage
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 # Transform image
 videoclaw i2i -i input.png -p "转换为九宫格角色图" -o output.png

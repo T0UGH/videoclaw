@@ -10,6 +10,8 @@ description: Use when user wants to initialize a new video project with director
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw init my-project
 ```

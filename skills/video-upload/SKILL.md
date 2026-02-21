@@ -11,6 +11,8 @@ Upload local files to cloud storage. Currently supports Google Drive.
 
 ## Usage
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 # 上传文件到 Google Drive
 videoclaw upload -i local/file.mp4 -r videoclaw/project/file.mp4

@@ -29,9 +29,30 @@ Videoclaw 是一个 AI 视频生成工具，通过命令行与 Claude Code 集�
 3. 生成文本分镜（video-text-storyboard）
 4. i2v 生成视频
 
-适合快速验证想法。
+适合快速验证想法或使用seedance2.0这种强力模型的情况
 
 ## 安装
+
+### 方式一：uvx（推荐，无需安装）
+
+```bash
+# 安装 uv（如果还没有）
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 直接运行（无需安装）
+uvx videoclaw --help
+
+# 或安装到本地
+uv pip install videoclaw
+```
+
+### 方式二：pip
+
+```bash
+pip install videoclaw
+```
+
+### 方式三：开发模式
 
 ```bash
 # 克隆项目

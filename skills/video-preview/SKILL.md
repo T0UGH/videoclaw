@@ -10,6 +10,8 @@ description: Use when user wants to preview images or videos
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw preview <file_path> --project my-project
 ```

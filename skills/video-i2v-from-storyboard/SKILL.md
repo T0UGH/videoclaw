@@ -11,6 +11,8 @@ description: Use when user needs to convert storyboard images into video clips (
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw i2v-from-storyboard --project my-project
 ```

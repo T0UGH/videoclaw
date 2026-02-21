@@ -10,6 +10,8 @@ description: Use when user needs to merge video clips, add audio, and generate t
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw merge --project my-project
 ```

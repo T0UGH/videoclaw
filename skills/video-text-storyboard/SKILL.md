@@ -5,6 +5,8 @@ description: 使用 AI 生成结构化文本分镜，作为视频生成的输入
 
 # video-text-storyboard
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ## 触发场景
 
 用户说以下话时触发：

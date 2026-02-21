@@ -10,6 +10,8 @@ description: Use when user needs to view, get, or set project or global configur
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 # 列出配置
 videoclaw config --list

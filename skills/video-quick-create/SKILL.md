@@ -5,6 +5,8 @@ description: 简化版视频创建流程，一步完成。用于用户想要快�
 
 # video-quick-create
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ## 触发场景
 
 用户说"做一个xx视频"、"帮我生成一个视频"时触发。

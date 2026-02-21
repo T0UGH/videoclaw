@@ -10,6 +10,8 @@ description: Use when user wants to check the progress and status of a video pro
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw status --project my-project
 ```

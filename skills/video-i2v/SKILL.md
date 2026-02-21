@@ -11,6 +11,8 @@ description: Use when user needs to convert images into video clips with custom 
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 # 一张图片生成一个视频
 videoclaw i2v --project my-project -i image.png -t "角色向前行走"

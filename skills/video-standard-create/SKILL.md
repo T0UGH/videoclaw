@@ -5,6 +5,8 @@ description: Use when user wants to create a complete video from a description i
 
 # video-standard-create - 创建视频
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ## 概述
 一句话创建完整视频，自动执行所有步骤。交互确认在 skill 层通过 AskUserQuestion 实现。
 

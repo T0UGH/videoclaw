@@ -10,6 +10,8 @@ description: Use when user needs to generate character and scene image assets fo
 
 ## 使用方式
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 ```bash
 videoclaw assets --project my-project
 ```
