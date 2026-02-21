@@ -77,9 +77,11 @@ videoclaw/
 
 ### 配置优先级
 
-1. **环境变量**（最高）：`DASHSCOPE_API_KEY`, `ARK_API_KEY`, `VIDEOCLAW_*`
-2. **全局配置**：`~/.videoclaw/config.yaml`
-3. **项目配置**：`<project>/.videoclaw/config.yaml`
+1. **环境变量**（最高）：`DASHSCOPE_API_KEY`, `ARK_API_KEY`, `GOOGLE_API_KEY`, `VIDEOCLAW_*`
+2. **项目配置**：`<project>/.videoclaw/config.yaml`
+3. **全局配置**：`~/.videoclaw/config.yaml`
+
+配置加载使用深度合并，项目配置会覆盖全局配置的同名键。
 
 完整配置项清单见 [docs/configuration.md](docs/configuration.md)
 
