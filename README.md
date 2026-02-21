@@ -8,6 +8,16 @@ Videoclaw 是一个 AI 视频生成工具，通过命令行与 Claude Code 集�
 
 ## 两种创作模式
 
+### video-quick-create（快速模式）
+
+简化流程，追求快速出片：
+1. 用户描述视频想法
+2. 生成九宫格角色资产图（T2I/I2I）
+3. 生成文本分镜（video-text-storyboard）
+4. i2v 生成视频
+
+适合快速验证想法或使用seedance2.0这种强力模型的情况
+
 ### video-standard-create（标准模式）
 
 完整的视频创作流程，包含多轮交互确认：
@@ -21,23 +31,11 @@ Videoclaw 是一个 AI 视频生成工具，通过命令行与 Claude Code 集�
 
 适合需要精细控制的视频创作。
 
-### video-quick-create（快速模式）
-
-简化流程，追求快速出片：
-1. 用户描述视频想法
-2. 生成九宫格角色资产图（T2I/I2I）
-3. 生成文本分镜（video-text-storyboard）
-4. i2v 生成视频
-
-适合快速验证想法或使用seedance2.0这种强力模型的情况
-
 ## 安装
 
 ### 方式一：uvx（推荐，无需安装）
 
 ```bash
-# 安装 uv（如果还没有）
-curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # 直接运行（无需安装）
 uvx videoclaw --help
