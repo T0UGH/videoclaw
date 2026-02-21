@@ -50,8 +50,10 @@ videoclaw i2i -i <reference.jpg> -p "转换为九宫格角色图" -o <project>/a
 
 ### 3. 生成视频
 
+从第二步获取文本分镜内容，传入 -t 参数：
+
 ```bash
-videoclaw i2v -p <project> -i <assets/image1.png> -i <assets/image2.png> -t "角色向前匀速行走"
+videoclaw i2v -p <project> -i <assets/image1.png> -i <assets/image2.png> -t "<第二步生成的文本分镜内容>"
 ```
 
 ## 交互确认
