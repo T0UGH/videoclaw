@@ -41,17 +41,17 @@
   - videoclaw/cli/commands/i2v.py
   - skills/video-i2v/SKILL.md
 
-## 未处理  
-
 ### 9. 待测试Google Drive
 - **状态**: 已处理
 - **说明**: 已测试上传功能，OAuth 认证后成功上传到 Google Drive
 - **相关文件**:
   - videoclaw/storage/google_drive.py
 
+## 未处理  
+
 ### 5. 上传包到PyPI
-- **状态**: 未处理
-- **说明**: 需要将包上传到 PyPI 以支持 `uvx` 使用，并在 skill 和文档中说明下载方式
+- **状态**: 已处理
+- **说明**: 已发布到 PyPI，可以使用 `uvx videoclaw` 运行
 
 ### 4. 测试方法应该先安装这个marketplace
 - **状态**: 未处理
