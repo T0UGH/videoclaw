@@ -33,15 +33,11 @@
 - **相关文件**:
   - videoclaw/cli/main.py (行 47-90)
 
-### 8. 火山音频模型接入
-- **状态**: 已处理
-- **说明**: 已实现 VolcEngineTTS 后端
-- **相关文件**:
-  - videoclaw/models/volcengine/tts.py
-
 ---
 
 ## ⚠️ 未处理
+
+### 10 提供了t2i和i2i的命令但是没有提供对应的skill
 
 ### 4. 测试方法应该先安装这个marketplace
 - **状态**: 未处理
@@ -54,6 +50,12 @@
 ### 6. 给用户选用asset/frame作为参考的机会
 - **状态**: 部分处理
 - **说明**: video-quick-create 已支持 I2I 模式（人物参考图），但 storyboard 阶段选择参考帧的功能需要进一步确认
+
+### 8. 火山音频模型接入
+- **状态**: 未处理
+- **说明**: VolcEngineTTS 类已创建，但实际调用的是 mock 数据（第35-36行 TODO），需要接入真实的火山引擎 TTS API
+- **相关文件**:
+  - videoclaw/models/volcengine/tts.py (行 35-36)
 
 ### 9. 待测试Google Drive
 - **状态**: 未处理
