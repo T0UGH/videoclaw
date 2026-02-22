@@ -29,9 +29,6 @@ uvx twine upload dist/*                     # 发布到 PyPI
 # 初始化项目
 videoclaw init my-project
 
-# 查看项目状态
-videoclaw status -p my-project
-
 # 配置管理
 videoclaw config --help
 ```
@@ -46,13 +43,15 @@ videoclaw/
 │   ├── main.py            # 主入口，注册子命令
 │   └── commands/         # 子命令
 │       ├── init.py       # 项目初始化
-│       ├── assets.py     # 资产生成
-│       ├── storyboard.py # 故事板生成
+│       ├── t2i.py        # 文生图
+│       ├── i2i.py       # 图生图
 │       ├── i2v.py       # 图生视频
-│       ├── audio.py     # 音频生成
-│       ├── merge.py     # 视频合并
-│       ├── preview.py   # 预览
-│       └── config.py    # 配置管理
+│       ├── audio.py      # 音频生成
+│       ├── merge.py      # 视频合并
+│       ├── preview.py    # 预览
+│       ├── config.py    # 配置管理
+│       ├── upload.py    # 云盘上传
+│       └── publish.py   # 社交媒体发布
 ├── config/                # 配置加载器
 │   └── loader.py         # Config 类，支持全局/项目配置 + 环境变量
 ├── models/               # AI 模型抽象层（可插拔）
@@ -60,24 +59,25 @@ videoclaw/
 │   ├── factory.py       # get_image_backend, get_video_backend, get_audio_backend
 │   ├── dashscope/      # 阿里云 DashScope (t2i, i2v, tts)
 │   ├── volcengine/     # 字节系火山引擎 (seedream, seedance, tts)
+│   ├── gemini/         # Google Gemini
 │   └── mock/           # 测试用 Mock
 ├── storage/             # 存储抽象层
 │   ├── base.py         # StorageBackend 基类
-│   └── local.py        # 本地存储实现
-├── state/               # 状态管理
-│   └── manager.py      # StateManager，管理项目 state.json
-├── pipeline/            # 工作流编排
-│   └── orchestrator.py # PipelineOrchestrator
+│   ├── local.py        # 本地存储实现
+│   └── google_drive.py # Google Drive 上传
+├── publisher/           # 社交媒体发布
+│   ├── douyin.py       # 抖音发布
+│   └── kuaishou.py    # 快手发布
 ├── ffmpeg/              # FFmpeg 处理
 │   └── processor.py    # 视频处理
 └── utils/               # 工具函数
 ```
 
-### 视频创建流程
+### 视频创建流程（quick-create）
 
 ```
-脚本分析 → 资产生成 → 故事板生成 → 图生视频 → 音频生成 → 视频合并
-  (Claude Code)   (T2I)      (T2I/I2I)     (I2V)       (TTS)      (FFmpeg)
+故事大纲 → 素材准备 → 文本分镜 → i2v 生成视频
+  (Claude Code)   (T2I)      (I2V)
 ```
 
 ### 配置优先级
@@ -95,10 +95,7 @@ videoclaw/
 ```
 ~/videoclaw-projects/<project>/
 ├── .videoclaw/
-│   ├── config.yaml    # 项目配置
-│   └── state.json    # 状态跟踪
-├── assets/           # 角色/场景图片
-├── storyboard/       # 故事板帧图片
+│   └── config.yaml    # 项目配置
 ├── videos/           # 生成的视频片段
 └── audio/            # 音频文件
 ```
@@ -158,23 +155,17 @@ httpx>=0.27.0
 ### 常用命令
 
 ```bash
-# 资产生成（自动执行）
-videoclaw assets --project my-project
-
-# 资产生成，使用本地图片
-videoclaw assets --project my-project --use-local
-
-# 故事板生成（自动执行）
-videoclaw storyboard --project my-project
+# 文生图
+videoclaw t2i --project my-project -p "宇航员在火星上"
 
 # 图生视频
-videoclaw i2v --project my-project
+videoclaw i2v --project my-project -i image.png -t "角色向前行走"
 
 # 音频生成
-videoclaw audio --project my-project
+videoclaw audio --project my-project -t "这是测试语音"
 
 # 视频合并
-videoclaw merge --project my-project
+videoclaw merge --project my-project -v video1.mp4 -v video2.mp4
 ```
 
 ### 与 Skill 集成
