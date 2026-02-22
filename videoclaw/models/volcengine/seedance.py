@@ -42,7 +42,14 @@ class VolcEngineSeedance(VideoBackend):
             api_key=self.api_key,
         )
 
-    def image_to_video(self, image: bytes, prompt: str, **kwargs) -> GenerationResult:
+    def image_to_video(
+        self,
+        images: bytes | list[bytes],
+        prompt: str,
+        video_refs: list[str] = None,
+        audio_refs: list[str] = None,
+        **kwargs
+    ) -> GenerationResult:
         logger.info(f"开始生成视频，prompt: {prompt[:50]}...")
 
         # 生成唯一文件名
@@ -57,32 +64,69 @@ class VolcEngineSeedance(VideoBackend):
         import io
         from PIL import Image
 
-        # 读取图片并转换为 base64，确保尺寸足够
-        img = Image.open(io.BytesIO(image))
-        # 确保图片宽度至少 300px（API 要求）
-        min_size = 300
-        if img.width < min_size or img.height < min_size:
-            # 放大图片
-            scale = max(min_size / img.width, min_size / img.height)
-            new_size = (int(img.width * scale), int(img.height * scale))
-            img = img.resize(new_size, Image.Resampling.LANCZOS)
-            logger.info(f"图片尺寸已调整: {img.width}x{img.height}")
-        buffered = io.BytesIO()
-        img_format = img.format or "PNG"
-        img.save(buffered, format=img_format)
-        img_bytes = buffered.getvalue()
-        b64_img = base64.b64encode(img_bytes).decode('utf-8')
-        data_url = f"data:image/{img_format.lower()};base64,{b64_img}"
+        # 处理多图输入
+        def process_image(image_bytes: bytes) -> str:
+            """将图片字节转换为 base64 data URL"""
+            img = Image.open(io.BytesIO(image_bytes))
+            # 确保图片宽度至少 300px（API 要求）
+            min_size = 300
+            if img.width < min_size or img.height < min_size:
+                # 放大图片
+                scale = max(min_size / img.width, min_size / img.height)
+                new_size = (int(img.width * scale), int(img.height * scale))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                logger.info(f"图片尺寸已调整: {img.width}x{img.height}")
+            buffered = io.BytesIO()
+            img_format = img.format or "PNG"
+            img.save(buffered, format=img_format)
+            img_bytes = buffered.getvalue()
+            b64_img = base64.b64encode(img_bytes).decode('utf-8')
+            return f"data:image/{img_format.lower()};base64,{b64_img}"
+
+        # 标准化 images 为列表
+        if isinstance(images, bytes):
+            image_list = [images]
+        else:
+            image_list = images
+
+        # 构建 content 列表
+        content = [{"type": "text", "text": prompt}]
+
+        # 添加图片
+        for img_bytes in image_list:
+            data_url = process_image(img_bytes)
+            content.append({"type": "image_url", "image_url": {"url": data_url}})
+
+        # 添加视频参考
+        if video_refs:
+            for video_path in video_refs:
+                with open(video_path, "rb") as f:
+                    video_data = f.read()
+                b64_video = base64.b64encode(video_data).decode('utf-8')
+                # 视频使用 data URL 格式
+                content.append({
+                    "type": "video_url",
+                    "video_url": {"url": f"data:video/mp4;base64,{b64_video}"}
+                })
+
+        # 添加音频参考
+        if audio_refs:
+            for audio_path in audio_refs:
+                with open(audio_path, "rb") as f:
+                    audio_data = f.read()
+                b64_audio = base64.b64encode(audio_data).decode('utf-8')
+                # 音频使用 data URL 格式
+                content.append({
+                    "type": "audio_url",
+                    "audio_url": {"url": f"data:audio/mp3;base64,{b64_audio}"}
+                })
 
         try:
             # Step 1: 创建异步任务 (使用 base64 data URL)
             logger.debug(f"创建视频生成任务，model: {self.model}")
             response = self.client.content_generation.tasks.create(
                 model=self.model,
-                content=[
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": data_url}},
-                ],
+                content=content,
                 ratio=kwargs.get("ratio", "16:9"),
                 # resolution 参数仅在文生视频时有效，图生视频时不传
                 # resolution=kwargs.get("resolution"),
