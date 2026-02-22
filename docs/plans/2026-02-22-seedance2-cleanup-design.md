@@ -12,8 +12,9 @@
 
 1. 删除标准流程相关的 skills
 2. 删除标准流程相关的 CLI 命令代码
-3. 修改 merge 命令，移除状态管理依赖
-4. 保留快速流程和原子操作
+3. 删除状态管理模块
+4. 修改 audio/merge 命令，移除状态管理依赖
+5. 保留快速流程和原子操作
 
 ## 详细设计
 
@@ -40,14 +41,49 @@
 
 ### 2. CLI 命令清理
 
-| 操作 | 命令 | 文件 |
-|------|------|------|
-| 删除 | `videoclaw assets` | `cli/commands/assets.py` |
-| 删除 | `videoclaw storyboard` | `cli/commands/storyboard.py` |
-| 删除 | `videoclaw status` | `cli/commands/status.py` |
-| 修改 | `videoclaw merge` | `cli/commands/merge.py` |
+| 操作 | 命令 | 文件 | 说明 |
+|------|------|------|------|
+| 删除 | `videoclaw assets` | `cli/commands/assets.py` | 依赖 StateManager |
+| 删除 | `videoclaw storyboard` | `cli/commands/storyboard.py` | 依赖 StateManager |
+| 删除 | `videoclaw i2v-from-storyboard` | `cli/commands/i2v_from_storyboard.py` | 依赖 storyboard |
+| 修改 | `videoclaw audio` | `cli/commands/audio.py` | 移除 StateManager 依赖 |
+| 修改 | `videoclaw merge` | `cli/commands/merge.py` | 移除 StateManager 依赖 |
+| 保留 | `videoclaw i2v` | `cli/commands/i2v.py` | 独立命令，不依赖 state |
+| 保留 | `videoclaw t2i` | `cli/commands/t2i.py` | 独立命令 |
+| 保留 | `videoclaw i2i` | `cli/commands/i2i.py` | 独立命令 |
+| 保留 | `videoclaw config` | `cli/commands/config.py` | 配置管理 |
+| 保留 | `videoclaw preview` | `cli/commands/preview.py` | 预览 |
+| 保留 | `videoclaw upload` | `cli/commands/upload.py` | 上传 |
+| 保留 | `videoclaw publish` | `cli/commands/publish.py` | 发布 |
+| 保留 | `videoclaw validate` | `cli/commands/validate.py` | 验证 |
 
-### 3. merge.py 改造
+### 3. 状态管理模块删除
+
+| 操作 | 文件 | 说明 |
+|------|------|------|
+| 删除 | `videoclaw/state/manager.py` | StateManager 类 |
+| 删除 | `videoclaw/state/__init__.py` | 模块导出 |
+| 删除 | `videoclaw/pipeline/orchestrator.py` | 工作流编排，使用 StateManager |
+
+### 4. audio.py 改造
+
+移除 StateManager 依赖，改为直接接收参数：
+
+```python
+# 改造后的 audio 命令
+@click.command()
+@click.option("--project", "-p", required=True, help="项目名称")
+@click.option("--provider", default="volcengine", help="模型提供商")
+@click.option("--text", "-t", help="TTS 文本内容")
+@click.option("--duration", default=30, help="背景音乐时长")
+def audio(project: str, provider: str, text: str, duration: int):
+    """生成音频（TTS、音效、背景音乐）"""
+    # 不再从 state.json 读取数据
+    # 直接使用命令行参数
+    ...
+```
+
+### 5. merge.py 改造
 
 移除 StateManager 依赖，改为：
 
@@ -62,30 +98,36 @@ def merge(project: str, videos: tuple, audio: str, output: str):
     """合并视频片段"""
     # 直接接收视频和音频文件路径，不再从 state.json 读取
     video_files = list(videos)
-    # 使用 FFmpeg 合并
     ...
 ```
 
-### 4. 主入口清理
+### 6. 主入口清理
 
-`cli/main.py` 中移除以下命令的注册：
-- assets
-- storyboard
-- status
+`cli/main.py` 中：
+1. 移除导入：`assets`, `storyboard`, `i2v_from_storyboard`
+2. 移除命令注册：`.add_command(assets)`, `.add_command(storyboard)`, `.add_command(i2v_from_storyboard)`
 
-### 5. 状态管理模块
+### 7. 测试文件清理
 
-`StateManager` 类保留（可能用于其他用途），但上述命令不再依赖它。
+删除相关测试文件：
+- `tests/test_state.py`
+- `tests/test_state_selections.py`
+- `tests/test_storyboard_num_variants.py`
+- `tests/test_assets_num_variants.py`
+- `tests/test_pipeline.py`
 
 ## 风险与注意事项
 
 1. **向后兼容性**：如果用户有旧项目，可能无法通过新 CLI 管理
 2. **测试覆盖**：需要确保保留的命令正常工作
-3. **文档更新**：skills 文档已清理
+3. **audio/merge 参数变化**：命令行参数接口变化，需更新调用方
 
 ## 验收标准
 
-1. `videoclaw --help` 不再显示 assets/storyboard/status 命令
-2. `videoclaw merge` 可以独立运行，不依赖 state.json
-3. `video-quick-create` skill 正常工作
-4. 保留的原子操作 skill 正常工作
+1. `videoclaw --help` 不再显示 assets/storyboard/i2v-from-storyboard 命令
+2. `videoclaw audio` 可以独立运行，不依赖 state.json
+3. `videoclaw merge` 可以独立运行，不依赖 state.json
+4. `videoclaw/state/` 目录已删除
+5. `videoclaw/pipeline/orchestrator.py` 已删除
+6. `video-quick-create` skill 正常工作
+7. 保留的原子操作 skill 正常工作
