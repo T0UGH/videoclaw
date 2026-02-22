@@ -1,40 +1,44 @@
 ---
-description: 发布视频到抖音平台
+name: video-publish-douyin
+description: Publish videos to Douyin (抖音). Use when user wants to upload and publish videos to Douyin platform.
 ---
 
 # video-publish-douyin
 
-发布视频到抖音平台。
+Publish videos to Douyin platform.
 
-## 使用方法
+## Usage
 
-```
+```bash
 videoclaw publish douyin -v <video_path> -t "<title>" --tags "<tag1,tag2>"
 ```
 
-## 参数
+## Parameters
 
-- `video_path`: 视频文件路径
-- `title`: 视频标题
-- `tags`: 话题标签，逗号分隔（可选）
-- `cover`: 封面图片路径（可选）
-- `account`: 账号名称，默认 default（可选）
+| Parameter | Description |
+|-----------|-------------|
+| `-v, --video` | Video file path (required) |
+| `-t, --title` | Video title (required) |
+| `--tags` | Comma-separated tags (optional) |
+| `-c, --cover` | Cover image path (optional) |
+| `-a, --account` | Account name, default: default (optional) |
 
-## 示例
+## Examples
 
-发布视频:
-```
+```bash
+# Basic
 videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频"
-```
 
-带话题:
-```
+# With tags
 videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频" --tags "搞笑,日常"
+
+# With cover
+videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频" -c /path/to/cover.jpg
 ```
 
-## 前提条件
+## Prerequisites
 
-需要先登录抖音账号:
-```
+Login to Douyin account first:
+```bash
 videoclaw publish login douyin
 ```

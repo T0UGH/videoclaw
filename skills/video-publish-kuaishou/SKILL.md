@@ -1,40 +1,44 @@
 ---
-description: 发布视频到快手平台
+name: video-publish-kuaishou
+description: Publish videos to Kuaishou (快手). Use when user wants to upload and publish videos to Kuaishou platform.
 ---
 
 # video-publish-kuaishou
 
-发布视频到快手平台。
+Publish videos to Kuaishou platform.
 
-## 使用方法
+## Usage
 
-```
+```bash
 videoclaw publish kuaishou -v <video_path> -t "<title>" --tags "<tag1,tag2>"
 ```
 
-## 参数
+## Parameters
 
-- `video_path`: 视频文件路径
-- `title`: 视频标题
-- `tags`: 话题标签，逗号分隔（可选）
-- `cover`: 封面图片路径（可选）
-- `account`: 账号名称，默认 default（可选）
+| Parameter | Description |
+|-----------|-------------|
+| `-v, --video` | Video file path (required) |
+| `-t, --title` | Video title (required) |
+| `--tags` | Comma-separated tags (optional) |
+| `-c, --cover` | Cover image path (optional) |
+| `-a, --account` | Account name, default: default (optional) |
 
-## 示例
+## Examples
 
-发布视频:
-```
+```bash
+# Basic
 videoclaw publish kuaishou -v /path/to/video.mp4 -t "精彩视频"
-```
 
-带话题:
-```
+# With tags
 videoclaw publish kuaishou -v /path/to/video.mp4 -t "精彩视频" --tags "搞笑,日常"
+
+# With cover
+videoclaw publish kuaishou -v /path/to/video.mp4 -t "精彩视频" -c /path/to/cover.jpg
 ```
 
-## 前提条件
+## Prerequisites
 
-需要先登录快手账号:
-```
+Login to Kuaishou account first:
+```bash
 videoclaw publish login kuaishou
 ```
