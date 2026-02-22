@@ -5,12 +5,14 @@ description: Publish videos to Douyin (抖音). Use when user wants to upload an
 
 # video-publish-douyin
 
+> **注意**：如果是首次使用，确保已安装 videoclaw：`uvx videoclaw --help`
+
 Publish videos to Douyin platform.
 
 ## Usage
 
 ```bash
-videoclaw publish douyin -v <video_path> -t "<title>" --tags "<tag1,tag2>"
+videoclaw publish upload douyin -v <video_path> -t "<title>" --tags "<tag1,tag2>"
 ```
 
 ## Parameters
@@ -27,13 +29,13 @@ videoclaw publish douyin -v <video_path> -t "<title>" --tags "<tag1,tag2>"
 
 ```bash
 # Basic
-videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频"
+videoclaw publish upload douyin -v /path/to/video.mp4 -t "精彩视频"
 
 # With tags
-videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频" --tags "搞笑,日常"
+videoclaw publish upload douyin -v /path/to/video.mp4 -t "精彩视频" --tags "搞笑,日常"
 
 # With cover
-videoclaw publish douyin -v /path/to/video.mp4 -t "精彩视频" -c /path/to/cover.jpg
+videoclaw publish upload douyin -v /path/to/video.mp4 -t "精彩视频" -c /path/to/cover.jpg
 ```
 
 ## Prerequisites

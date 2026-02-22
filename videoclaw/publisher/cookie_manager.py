@@ -30,8 +30,30 @@ async def login_and_save_cookie(
         context = await browser.new_context()
         page = await context.new_page()
 
-        await page.goto(url)
-        await page.pause()  # 用户扫码登录
+        await page.goto(url, timeout=120000)  # 2分钟超时
+
+        print("\n请在浏览器中扫码登录，程序将自动检测登录状态...")
+
+        # 等待用户扫码登录，检测 localStorage 中的登录状态
+        max_wait = 120  # 最多等待2分钟
+        waited = 0
+        while waited < max_wait:
+            await asyncio.sleep(2)
+            try:
+                # 检查 localStorage 中的登录状态
+                login_status = await page.evaluate("() => localStorage.getItem('LOGIN_STATUS')")
+                if login_status and "logintype" in login_status:
+                    print("检测到登录成功!")
+                    break
+            except Exception:
+                pass
+            waited += 2
+            if waited % 10 == 0:
+                print(f"等待登录中... ({waited}秒)")
+        else:
+            print("登录超时，请重试")
+            await browser.close()
+            return False
 
         await context.storage_state(path=str(cookie_path))
         await browser.close()
@@ -62,7 +84,7 @@ async def validate_cookie(
         context = await browser.new_context(storage_state=str(cookie_path))
         page = await context.new_page()
 
-        await page.goto(url)
+        await page.goto(url, timeout=120000)  # 2分钟超时
         await asyncio.sleep(2)
 
         # 检查是否跳转到登录页

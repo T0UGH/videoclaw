@@ -67,18 +67,19 @@ class DouYinPublisher(Publisher):
 
             try:
                 # 1. 访问上传页面
-                await page.goto(self.upload_url)
+                await page.goto(self.upload_url, timeout=120000)
 
                 # 2. 上传视频
-                await page.wait_for_selector('input[type="file"]', timeout=10000)
+                await page.wait_for_selector('input[type="file"]', timeout=60000)
                 await page.set_input_files('input[type="file"]', str(video_path))
 
-                # 3. 等待上传完成
-                await asyncio.sleep(5)  # 简化处理
+                # 3. 等待上传完成 (等待视频封面出现表示上传完成)
+                await page.wait_for_selector('.video-info, .upload-item, img[src*="video"]', timeout=120000)
+                await asyncio.sleep(2)  # 额外等待确保上传完成
 
-                # 4. 填写标题
-                title_input = page.locator('input[placeholder*="标题"]')
-                if await title_input.count():
+                # 4. 填写标题 (使用 .first 处理可能有多个匹配的情况)
+                title_input = page.locator('input[placeholder*="标题"]').first
+                if await title_input.is_visible():
                     await title_input.fill(title[:100])
 
                 # 5. 填写话题
@@ -91,12 +92,15 @@ class DouYinPublisher(Publisher):
                     # TODO: 实现封面上传
                     pass
 
-                # 7. 点击发布
-                publish_btn = page.locator('button:has-text("发布")')
+                # 7. 点击发布 (使用精确匹配，避免匹配到"高清发布")
+                publish_btn = page.locator('button:has-text("发布"):not(:has-text("高清"))')
                 await publish_btn.click()
 
-                # 8. 等待发布完成
-                await page.wait_for_url("**/success**", timeout=30000)
+                # 等待可能的弹窗
+                await asyncio.sleep(2)
+
+                # 8. 等待发布完成 (跳转管理页即表示成功)
+                await page.wait_for_url("**/manage**", timeout=30000)
 
                 return PublishResult(success=True)
 
