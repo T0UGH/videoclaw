@@ -182,8 +182,3 @@ class VolcEngineSeedance(VideoBackend):
         except Exception as e:
             logger.error(f"视频生成异常: {e}")
             raise
-        finally:
-            # 清理临时图片文件
-            import os
-            if 'tmp_path' in locals() and os.path.exists(tmp_path):
-                os.unlink(tmp_path)
