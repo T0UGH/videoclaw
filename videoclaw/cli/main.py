@@ -6,10 +6,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from videoclaw.cli.commands.assets import assets
-from videoclaw.cli.commands.storyboard import storyboard
 from videoclaw.cli.commands.i2v import i2v
-from videoclaw.cli.commands.i2v_from_storyboard import i2v_from_storyboard
 from videoclaw.cli.commands.audio import audio
 from videoclaw.cli.commands.merge import merge
 from videoclaw.cli.commands.preview import preview
@@ -32,10 +29,7 @@ def main():
 
 
 # 注册子命令
-main.add_command(assets)
-main.add_command(storyboard)
 main.add_command(i2v)
-main.add_command(i2v_from_storyboard)
 main.add_command(audio)
 main.add_command(merge)
 main.add_command(preview)
@@ -87,40 +81,11 @@ def init(project_name: str, project_dir: Optional[str], interactive: bool):
         "storage": {"provider": "local"}
     }
 
-    state = {
-        "project_id": project_name,
-        "status": "initialized",
-        "steps": {},
-    }
-
     import yaml
     with open(project_path / ".videoclaw" / "config.yaml", "w") as f:
         yaml.dump(config, f)
 
-    with open(project_path / ".videoclaw" / "state.json", "w") as f:
-        json.dump(state, f, indent=2)
-
     click.echo(f"项目 {project_name} 已创建于 {project_path}")
-
-
-@main.command()
-@click.option("--project", "-p", required=True, help="项目名称")
-def status(project: str):
-    """查看项目状态"""
-    project_path = DEFAULT_PROJECTS_DIR / project / ".videoclaw" / "state.json"
-
-    if not project_path.exists():
-        click.echo(f"错误: 项目 {project} 不存在", err=True)
-        return
-
-    with open(project_path) as f:
-        state = json.load(f)
-
-    click.echo(f"项目: {state['project_id']}")
-    click.echo(f"状态: {state['status']}")
-    click.echo("\n步骤状态:")
-    for step, info in state.get("steps", {}).items():
-        click.echo(f"  {step}: {info.get('status', 'unknown')}")
 
 
 if __name__ == "__main__":
