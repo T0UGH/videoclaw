@@ -5,7 +5,6 @@ import click
 import subprocess
 from pathlib import Path
 
-from videoclaw.state import StateManager
 from videoclaw.config import Config
 from videoclaw.utils.logging import get_logger
 from videoclaw.storage.uploader import upload_to_cloud
@@ -97,8 +96,10 @@ def merge_with_ffmpeg(video_files: list, audio_files: list, bgm_file: str, outpu
 
 @click.command()
 @click.option("--project", "-p", required=True, help="项目名称")
-@click.option("--skip-audio", is_flag=True, help="跳过音频生成")
-def merge(project: str, skip_audio: bool):
+@click.option("--videos", "-v", multiple=True, required=True, help="视频文件路径（可多次指定）")
+@click.option("--audio", "-a", help="背景音乐文件路径")
+@click.option("--output", "-o", default="final.mp4", help="输出文件名")
+def merge(project: str, videos: tuple, audio: str, output: str):
     """合并视频片段"""
     project_path = DEFAULT_PROJECTS_DIR / project
     logger = get_logger(project_path)
@@ -110,37 +111,19 @@ def merge(project: str, skip_audio: bool):
 
     logger.info(f"开始合并视频，项目: {project}")
 
-    state = StateManager(project_path)
     config = Config(project_path)
 
-    # 检查上一步是否完成（除非跳过音频）
-    if not skip_audio:
-        audio_step = state.get_step("audio")
-        if not audio_step or audio_step.get("status") != "completed":
-            click.echo("错误: 请先完成音频生成", err=True)
-            return
-
-    state.set_status("merging_video")
-    state.update_step("merge", "in_progress")
-
-    # 获取视频和音频文件
-    i2v_step = state.get_step("i2v")
-    i2v_data = i2v_step.get("output", {})
-    video_files = [v["path"] for v in i2v_data.get("videos", [])]
-
-    if skip_audio:
-        dialogue_files = []
-        bgm_file = None
-    else:
-        audio_data = audio_step.get("output", {})
-        dialogue_files = [d["path"] for d in audio_data.get("dialogues", [])]
-        bgm_file = audio_data.get("bgm")
+    # 直接使用命令行参数
+    video_files = list(videos)
+    bgm_file = audio
 
     videos_dir = project_path / "videos"
-    output_path = videos_dir / "final.mp4"
+    videos_dir.mkdir(exist_ok=True)
+    output_path = videos_dir / output
 
     click.echo(f"找到 {len(video_files)} 个视频片段")
-    click.echo(f"找到 {len(dialogue_files)} 个对话音频")
+    if bgm_file:
+        click.echo(f"背景音乐: {bgm_file}")
 
     # 检查 FFmpeg
     has_ffmpeg = check_ffmpeg()
@@ -150,14 +133,14 @@ def merge(project: str, skip_audio: bool):
         click.echo("使用 FFmpeg 合并视频...")
 
         # 尝试合并
-        if merge_with_ffmpeg(video_files, dialogue_files, bgm_file, output_path):
+        if merge_with_ffmpeg(video_files, [], bgm_file, output_path):
             click.echo(f"视频已合并: {output_path}")
         else:
             click.echo("FFmpeg 合并失败，创建占位文件")
             output_path.write_bytes(b"merged video placeholder")
     else:
         # FFmpeg 不可用或文件不存在，创建占位文件
-        click.echo("FFmpeg 不可用，创建占位文件")
+        click.echo("FFmpeg 不可用或文件不存在，创建占位文件")
 
         # 复制第一个视频作为最终输出（模拟）
         if video_files and Path(video_files[0]).exists():
@@ -166,21 +149,14 @@ def merge(project: str, skip_audio: bool):
         else:
             output_path.write_bytes(b"merged video placeholder")
 
-    result = {
-        "output_file": str(output_path),
-    }
-
     # 上传到云盘
     cloud_url = upload_to_cloud(
         output_path,
-        f"videoclaw/{project}/final.mp4",
+        f"videoclaw/{project}/{output}",
         config,
         project
     )
     if cloud_url:
         click.echo(f" 云盘链接: {cloud_url}")
-
-    state.update_step("merge", "completed", result)
-    state.set_status("completed")
 
     click.echo(f"\n视频合并完成: {output_path}")
