@@ -1,6 +1,13 @@
 # videoclaw
 
-AI 视频创作 CLI 工具，专为 Claude Code 设计。
+**AI 视频创作 CLI 工具 | SOTA 模型强强联合**
+
+## SOTA 模型强强联合
+
+🎬 **Seedance 2.0** + 🖼️ **Nano Banana Pro** = 业界顶级视频生成方案
+
+- **视频生成**：Seedance 2.0 — 字节跳动最新视频生成模型，业界 SOTA 水平
+- **图片素材**：Nano Banana Pro (gemini-3-pro-image-preview) — 细腻质感遥遥领先
 
 ## 概述
 
@@ -87,10 +94,12 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 
 | 提供商 | 图像 (T2I) | 视频 (I2V) | 音频 (TTS) |
 |--------|-------------|--------------|-------------|
-| volcengine | Seedream | Seedance | TTS |
+| volcengine | Seedream | **Seedance 2.0** | TTS |
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
-| gemini | gemini-3-pro-image-preview | - | - |
+| gemini | **Nano Banana Pro** | - | - |
 | mock | 测试用 | 测试用 | 测试用 |
+
+> ⚡ **推荐配置**：图像用 **Nano Banana Pro** (gemini)，视频用 **Seedance 2.0** (volcengine)，体验业界最前沿的 AI 视频生成能力
 
 ## 配置
 
@@ -105,10 +114,10 @@ export GOOGLE_API_KEY=xxx        # Google API Key
 ### 全局配置
 
 ```bash
-# 图像提供商
-videoclaw config --global --set models.image.provider=volcengine
+# 图像提供商 - 推荐使用 Nano Banana Pro (gemini)
+videoclaw config --global --set models.image.provider=gemini
 
-# 视频提供商
+# 视频提供商 - 推荐使用 Seedance 2.0 (volcengine)
 videoclaw config --global --set models.video.provider=volcengine
 ```
 
