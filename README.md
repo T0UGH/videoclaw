@@ -177,6 +177,12 @@ videoclaw config --project my-video --set models.image.provider=gemini
 2. 全局配置 `~/.videoclaw/config.yaml`
 3. 项目配置 `<project>/.videoclaw/config.yaml`
 
+## 手机端使用
+
+手机端推荐使用 [Happy](https://github.com/slopus/happy)，可连接 PC 端的 Claude Code 进行视频创作。
+
+图片和视频素材的同步推荐使用 Google Drive、iCloud 或坚果云，这些工具都有自动同步本地文件夹到云盘的功能。
+
 ## 开发
 
 ```bash
@@ -202,12 +208,6 @@ git push
 uvx --from build pyproject-build
 uvx twine upload dist/*
 ```
-
-## 手机端使用
-
-手机端推荐使用 [Happy](https://github.com/slopus/happy)，可连接 PC 端的 Claude Code 进行视频创作。
-
-图片和视频素材的同步推荐使用 Google Drive、iCloud 或坚果云，这些工具都有自动同步本地文件夹到云盘的功能。
 
 ## License
 
