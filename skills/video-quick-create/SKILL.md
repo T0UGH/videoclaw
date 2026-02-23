@@ -157,7 +157,9 @@ description: 快速创建视频，全面拥抱 Seedance 2.0。一步完成：故
 - 细节还原：<关键细节>
 ```
 
-生成后用 AskUserQuestion 确认：
+生成后保存到 `<project>/storyboard/text_storyboard.md`
+
+用 AskUserQuestion 确认：
 > "文本分镜如下，满意吗？"
 > - 满意 → 继续 Step 4
 > - 调整 → 询问具体要改什么
