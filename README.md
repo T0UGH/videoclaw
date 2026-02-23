@@ -88,10 +88,12 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 
 ```
 1. 描述想法 → AI 生成故事大纲（主题、剧情、角色）
-2. 准备素材 → AI 生成角色九宫格图、场景图
+2. 准备素材 → AI 生成角色九宫格图、场景图（T2I/I2I 模式，推荐 Nano Banana Pro）
 3. 生成脚本 → AI 生成结构化分镜（镜头、画面、音效）
-4. 生成视频 → AI 图生视频
+4. 生成视频 → AI 图生视频（推荐 Seedance 2.0）
 ```
+
+详细流程见 [video-quick-create skill](../skills/video-quick-create/SKILL.md)
 
 ## 支持的模型提供商
 
