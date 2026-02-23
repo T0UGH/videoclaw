@@ -51,7 +51,9 @@ description: 快速创建视频，全面拥抱 Seedance 2.0。一步完成：故
 【风格偏好】用户指定的风格，如果没有则留空
 ```
 
-生成后用 AskUserQuestion 询问：
+生成后保存到 `<project>/storyboard/outline.md`
+
+用 AskUserQuestion 询问：
 > "故事大纲如下，满意吗？"
 > - 满意 → 继续 Step 2
 > - 调整 → 询问具体要改什么
