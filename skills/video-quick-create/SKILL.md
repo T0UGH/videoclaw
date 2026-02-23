@@ -114,7 +114,9 @@ description: 快速创建视频，全面拥抱 Seedance 2.0。一步完成：故
 - 用户提供 → 跳过
 - 需要生成 → T2I 模式
 
-生成后用 AskUserQuestion 确认：
+生成后保存到 `<project>/assets/`
+
+用 AskUserQuestion 确认：
 > "素材已准备好，满意吗？"
 
 ### Step 3: 文本分镜
