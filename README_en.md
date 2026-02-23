@@ -1,6 +1,6 @@
 # videoclaw
 
-**AI Video Creation CLI Tool | SOTA Model Power Couple**
+[中文](README.md) | **AI Video Creation CLI Tool | SOTA Model Power Couple**
 
 ## ⭐ SOTA Model Power Couple ⭐
 
@@ -94,8 +94,6 @@ Claude Code will automatically invoke the appropriate skill based on your needs:
 ```
 
 See [video-quick-create skill](../skills/video-quick-create/SKILL.md) for detailed workflow.
-
-Also available in [中文](README.md)
 
 ## Supported Model Providers
 

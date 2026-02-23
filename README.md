@@ -1,6 +1,6 @@
 # videoclaw
 
-**AI 视频创作 CLI 工具 | SOTA 模型强强联合**
+[English](README_en.md) | **AI 视频创作 CLI 工具 | SOTA 模型强强联合**
 
 ## ⭐ SOTA 模型强强联合 ⭐
 
@@ -94,8 +94,6 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 ```
 
 详细流程见 [video-quick-create skill](../skills/video-quick-create/SKILL.md)
-
-另有 [English 版本](README_en.md)
 
 ## 支持的模型提供商
 
