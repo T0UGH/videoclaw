@@ -147,6 +147,10 @@ To publish to Douyin, use the `video-publish-douyin` skill.
 
 See [docs/configuration.md](docs/configuration.md) for full configuration options.
 
+VolcEngine API Key: [Official Docs](https://www.volcengine.com/docs/82379/1099455)
+
+Gemini API Key: [Official Docs](https://ai.google.dev/gemini-api/docs)
+
 ### Environment Variables
 
 ```bash

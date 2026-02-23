@@ -147,6 +147,10 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 
 详细配置项清单见 [docs/configuration.md](docs/configuration.md)
 
+火山系模型 API Key 获取详见[官方文档](https://www.volcengine.com/docs/82379/1099455?lang=zh)
+
+Gemini 系模型 API Key 获取和使用详见[官方文档](https://ai.google.dev/gemini-api/docs?hl=zh-cn)
+
 ### 环境变量
 
 ```bash
