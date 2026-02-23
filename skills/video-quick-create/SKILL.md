@@ -107,12 +107,12 @@ description: 快速创建视频，全面拥抱 Seedance 2.0。一步完成：故
 
 **角色图**：
 - 用户提供 → 跳过生成
-- 无参考图 → T2I 模式生成
-- 有参考图 → I2I 模式生成
+- 无参考图 → T2I 模式生成（使用 video-t2i skill）
+- 有参考图 → I2I 模式生成（使用 video-i2i skill）
 
 **场景图**：
 - 用户提供 → 跳过
-- 需要生成 → T2I 模式
+- 需要生成 → T2I 模式生成（使用 video-t2i skill）
 
 生成后保存到 `<project>/assets/`
 
