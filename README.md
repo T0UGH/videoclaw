@@ -87,10 +87,10 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 ### video-quick-create 流程
 
 ```
-1. 故事大纲 → 保存到 <project>/outline.md
-2. 素材准备 → 保存到 <project>/assets/（角色九宫格、场景图）
-3. 文本分镜 → 保存到 <project>/storyboard/text_storyboard.md
-4. i2v 生成视频
+1. 描述想法 → AI 生成故事大纲（主题、剧情、角色）
+2. 准备素材 → AI 生成角色九宫格图、场景图
+3. 生成脚本 → AI 生成结构化分镜（镜头、画面、音效）
+4. 生成视频 → AI 图生视频
 ```
 
 ## 支持的模型提供商
