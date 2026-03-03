@@ -95,6 +95,17 @@ Claude Code will automatically invoke the appropriate skill based on your needs:
 
 See [video-quick-create skill](../skills/video-quick-create/SKILL.md) for detailed workflow.
 
+### video-text-storyboard Storyboard Types
+
+`video-text-storyboard` supports four video types, each with its own template and examples:
+
+| Type | Use Cases | Key Features |
+|------|-----------|--------------|
+| Story | Emotional shorts, micro-films, animation | Narrative pacing, emotional climax, dialogue lip-sync |
+| Product | Brand ads, e-commerce videos | Hook → overview → detail → usage scene → brand end card |
+| Action | Martial arts, dance, combat, stunts | Appear → stance → core action → finish, supports motion capture video reference |
+| Scenic | Nature, cityscape, travel vlog | Wide shot → push in → multi-angle → close-up → atmospheric ending |
+
 ## Supported Model Providers
 
 | Provider | Image (T2I) | Video (I2V) | Audio (TTS) |
@@ -112,8 +123,8 @@ All video creation workflows are implemented through Claude Code Skills:
 
 | Skill | Description |
 |-------|-------------|
-| video-quick-create | Quick video creation |
-| video-text-storyboard | Text storyboard generation |
+| video-quick-create | Quick video creation (story type) |
+| video-text-storyboard | Text storyboard generation (story/product/action/scenic) |
 | video-t2i | Text-to-image |
 | video-i2i | Image-to-image |
 | video-i2v | Image-to-video |

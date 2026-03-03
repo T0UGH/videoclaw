@@ -95,6 +95,17 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 
 详细流程见 [video-quick-create skill](../skills/video-quick-create/SKILL.md)
 
+### video-text-storyboard 分镜类型
+
+`video-text-storyboard` 支持四种视频类型，每种类型有独立的模板和示例：
+
+| 类型 | 适用场景 | 特点 |
+|------|---------|------|
+| 故事类 | 情感短片、微电影、动画 | 叙事节奏、情绪高潮、对白口型 |
+| 产品展示类 | 品牌广告、电商视频 | 开场抓眼→全景→细节→使用场景→落版 |
+| 角色动作类 | 武侠、舞蹈、格斗、特技 | 亮相→起势→核心动作→收尾，支持动捕视频引用 |
+| 风景旅拍类 | 自然风光、城市街拍 | 大景别→推进→多角度→特写→意境落版 |
+
 ## 支持的模型提供商
 
 | 提供商 | 图像 (T2I) | 视频 (I2V) | 音频 (TTS) |
@@ -112,8 +123,8 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 
 | Skill | 说明 |
 |-------|------|
-| video-quick-create | 快速创建视频 |
-| video-text-storyboard | 文本分镜生成 |
+| video-quick-create | 快速创建视频（故事类） |
+| video-text-storyboard | 文本分镜生成（故事/产品/动作/风景） |
 | video-t2i | 文生图 |
 | video-i2i | 图生图 |
 | video-i2v | 图生视频 |
