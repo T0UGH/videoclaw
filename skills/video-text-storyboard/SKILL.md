@@ -48,8 +48,6 @@ description: 使用 AI 生成结构化文本分镜，作为视频生成的输入
 
 ### 模板选择
 
-### 模板选择
-
 根据用户选择的视频类型，加载对应 references 文件：
 
 - **故事类** → [references/stories.md](references/stories.md)
