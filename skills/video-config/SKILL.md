@@ -42,7 +42,8 @@ videoclaw config --project my-project --set key=value
 Claude Code: videoclaw config --list
 
 # 设置项目使用的模型
-Claude Code: videoclaw config --project mars-video --set models.image.backend=gemini
+Claude Code: videoclaw config --project mars-video --set models.image.backend=codex-host-image
+Claude Code: videoclaw config --project mars-video --set models.image.auth=chatgpt_login
 Claude Code: videoclaw config --project mars-video --set models.video.provider=volcengine
 
 # 查看配置

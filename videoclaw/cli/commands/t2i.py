@@ -19,7 +19,7 @@ def t2i(prompt: str, output: str, provider: str | None, model: str | None):
     """文生图 - 独立命令"""
     config = Config()
     image_config = config.get_image_backend_config()
-    backend_name = provider or image_config.get("backend", "volcengine")
+    backend_name = provider or image_config.get("backend", "codex-host-image")
 
     if not model:
         model = image_config.get("model")

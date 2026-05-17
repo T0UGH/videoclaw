@@ -10,7 +10,13 @@ videoclaw is an AI video creation CLI focused on splitting the product into thre
 - **Skill pack workflow layer**: interaction, prompts, templates, creative flow
 - **Host adapter layer**: connect the same CLI + skills to different hosts
 
-The recommended creative stack is still image-first with Gemini and video-first with Seedance 2.0, but the long-term product direction is no longer “Claude Code only”. The goal is to let one CLI and one canonical skill pack work across multiple hosts.
+The recommended paths are now:
+
+- **Default image path**: `codex-host-image` (if you already have Codex / ChatGPT login available)
+- **High-quality image path**: Gemini
+- **Default video path**: Seedance 2.0
+
+In other words, videoclaw now prioritizes “if you already have a Codex subscription, you can generate images through that path” as the default user experience, while still keeping other providers and the host-neutral architecture direction.
 
 ## Install CLI
 
@@ -122,7 +128,15 @@ Image generation is evolving toward a dual-track model:
 - `openai-image`: formal provider direction
 - `codex-host-image`: host adapter direction
 
-Current recommended config still supports the existing providers:
+Current recommended config now starts with the Codex subscription path:
+
+```bash
+videoclaw config --project my-project --set models.image.backend=codex-host-image
+videoclaw config --project my-project --set models.image.auth=chatgpt_login
+videoclaw config --project my-project --set models.image.codex_mode=exec
+```
+
+If you are not using the Codex-host flow, switch to another provider, for example:
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=gemini
@@ -135,6 +149,8 @@ It also supports the new backend naming:
 videoclaw config --project my-project --set models.image.backend=openai-image
 videoclaw config --project my-project --set models.image.auth=api_key
 ```
+
+If `OPENAI_API_KEY` is configured, `openai-image` now calls the official OpenAI image API directly instead of going through the earlier fallback path.
 
 ## Video Workflow
 

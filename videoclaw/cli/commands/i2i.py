@@ -20,7 +20,7 @@ def i2i(input_path: str, prompt: str, output: str, provider: str | None, model: 
     """图生图 - 独立命令"""
     config = Config()
     image_config = config.get_image_backend_config()
-    backend_name = provider or image_config.get("backend", "volcengine")
+    backend_name = provider or image_config.get("backend", "codex-host-image")
 
     if not model:
         model = image_config.get("model")

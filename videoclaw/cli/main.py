@@ -456,7 +456,7 @@ def init(project_name: str, project_dir: Optional[str], interactive: bool):
         "project_name": project_name,
         "version": "0.1.0",
         "models": {
-            "image": {"provider": "volcengine"},
+            "image": {"backend": "codex-host-image", "auth": "chatgpt_login", "codex_mode": "exec"},
             "video": {"provider": "volcengine"},
         },
         "storage": {"provider": "local"},
@@ -662,7 +662,7 @@ def init(project_name: str, project_dir: Optional[str], interactive: bool):
         "project_name": project_name,
         "version": "0.1.0",
         "models": {
-            "image": {"provider": "volcengine"},
+            "image": {"backend": "codex-host-image", "auth": "chatgpt_login", "codex_mode": "exec"},
             "video": {"provider": "volcengine"},
         },
         "storage": {"provider": "local"},

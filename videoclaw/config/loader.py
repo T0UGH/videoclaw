@@ -92,7 +92,7 @@ class Config:
 
     def get_image_backend_config(self) -> Dict[str, Any]:
         """获取图片后端配置"""
-        backend = self.get("models.image.backend") or self.get("models.image.provider", "volcengine")
+        backend = self.get("models.image.backend") or self.get("models.image.provider", "codex-host-image")
         model = self.get("models.image.model")
         auth = self.get("models.image.auth")
         codex_mode = self.get("models.image.codex_mode")

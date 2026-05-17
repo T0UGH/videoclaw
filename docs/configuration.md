@@ -8,13 +8,11 @@
 2. **项目配置**：`<project>/.videoclaw/config.yaml`
 3. **全局配置**：`~/.videoclaw/config.yaml`
 
-## 项目结构相关配置
+推荐默认值：
 
-videoclaw 现在采用：
+- 如果你有 Codex / ChatGPT 登录环境，优先使用 `models.image.backend=codex-host-image`
+- 如果你不走 Codex 订阅链路，再切换到 `gemini` / `volcengine` / `dashscope`
 
-- 一个 `project` 承载共享资产和多个 `videos/<slug>/`
-- 单段视频默认使用 `render/`
-- 多段视频按需使用 `clips/`
 
 ## 模型配置 (models)
 
@@ -83,8 +81,9 @@ videoclaw 现在采用：
 - `imagen-4.0-ultra-generate-preview-06-06`
 
 **openai-image**
-- 当前为过渡实现，命名和配置语义已接入；
-- 后续将替换为正式 OpenAI provider。
+- `gpt-image-1`
+- 使用 `OPENAI_API_KEY` 或 `openai.api_key`
+- 直接调用 OpenAI 官方图片 API
 
 **codex-host-image**
 - 当前通过本机 Codex host capability 出图；

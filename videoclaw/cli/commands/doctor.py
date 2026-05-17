@@ -34,6 +34,7 @@ def doctor(backend: str, project: str | None):
         code_home = Path.home() / ".codex"
         click.echo(f"INFO codex home: {code_home}")
         click.echo("INFO auth source: chatgpt_login")
+        click.echo("INFO recommended path: codex-host-image is the default image backend for Codex subscribers")
         return
 
     if backend == "openai-image":

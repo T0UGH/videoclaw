@@ -10,7 +10,13 @@ videoclaw 是 AI 视频创作 CLI 工具，目标是把视频创作拆成：
 - **Skill Pack 工作流层**：负责交互、模板和创作流程；
 - **Host Adapter 适配层**：负责把同一套 skill pack 接到不同宿主。
 
-当前推荐组合仍然是：图像优先 Gemini，视频优先 Seedance 2.0；但 videoclaw 的长期方向不再是“只给 Claude Code 用”，而是让同一套 CLI + skills 可以被多个宿主复用。
+当前推荐组合是：
+
+- **默认图片链路**：`codex-host-image`（如果你有 Codex / ChatGPT 登录环境）
+- **高质量图片链路**：Gemini
+- **默认视频链路**：Seedance 2.0
+
+也就是说，videoclaw 现在优先把“有 Codex 订阅就能直接出图”作为默认体验路径，同时保留其他正式 provider 和宿主中立演进方向。
 
 ## 安装 CLI
 
@@ -125,6 +131,14 @@ my-project/
 当前配置推荐统一使用：
 
 ```bash
+videoclaw config --project my-project --set models.image.backend=codex-host-image
+videoclaw config --project my-project --set models.image.auth=chatgpt_login
+videoclaw config --project my-project --set models.image.codex_mode=exec
+```
+
+如果你不走 Codex 订阅链路，再切到其他 provider，例如：
+
+```bash
 videoclaw config --project my-project --set models.image.backend=gemini
 videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
 ```
@@ -135,6 +149,8 @@ videoclaw config --project my-project --set models.image.model=gemini-3-pro-imag
 videoclaw config --project my-project --set models.image.backend=openai-image
 videoclaw config --project my-project --set models.image.auth=api_key
 ```
+
+如果你配置了 `OPENAI_API_KEY`，`openai-image` 现在会直接调用 OpenAI 官方图片 API，而不是再走过渡兜底。
 
 ## 视频工作流
 
