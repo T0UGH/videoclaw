@@ -51,23 +51,21 @@ description: Use when user wants to initialize a new video project with director
 
 1. 用 AskUserQuestion 依次收集配置（项目名称、图像提供商、视频提供商、存储方式）
 2. 调用 `videoclaw init <project-name>` 创建项目
-3. 用 `videoclaw config --project <name> --set` 设置项目配置
+3. 用 `videoclaw config --project <name> --set` 设置项目配置（推荐使用新的 backend 字段）
 
 ```bash
 # 示例执行
 videoclaw init my-video
-videoclaw config --project my-video --set models.image.provider=volcengine
+videoclaw config --project my-video --set models.image.backend=gemini
 videoclaw config --project my-video --set models.video.provider=volcengine
 videoclaw config --project my-video --set storage.provider=google_drive
 ```
 
 ## 创建的目录
 
-- `.videoclaw/` - 配置和状态文件
-- `assets/` - 角色和场景图片
-- `storyboard/` - 故事板帧图片
-- `videos/` - 生成的视频片段
-- `audio/` - 音频文件
+- `assets/` - 共享角色、场景、道具、封面
+- `videos/` - 多个视频单元（每个 video 独立管理）
+- `exports/` - 最终交付产物
 
 ## 参数
 
@@ -80,7 +78,7 @@ videoclaw config --project my-video --set storage.provider=google_drive
 
 ```bash
 # 设置全局默认提供商
-videoclaw config --set models.image.provider=volcengine
+videoclaw config --set models.image.backend=volcengine
 videoclaw config --set models.video.provider=volcengine
 videoclaw config --set storage.provider=google_drive
 ```
@@ -96,7 +94,7 @@ Claude Code:
   - 询问视频提供商（volcengine/dashscope/mock）
   - 询问存储方式（local/google_drive）
   - 执行: videoclaw init my-video
-  - 执行: videoclaw config --project my-video --set models.image.provider=xxx
+  - 执行: videoclaw config --project my-video --set models.image.backend=xxx
   - 执行: videoclaw config --project my-video --set models.video.provider=xxx
   - 执行: videoclaw config --project my-video --set storage.provider=xxx
 ```

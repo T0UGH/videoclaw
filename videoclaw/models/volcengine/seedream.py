@@ -17,6 +17,11 @@ logger = get_logger(name="volcengine.seedream")
 class VolcEngineSeedream(ImageBackend):
     """字节系 Seedream 图像生成"""
 
+    backend_name = "volcengine"
+    auth_source = "api_key"
+    execution_surface = "provider_api"
+    billing_expectation = "api_billed"
+
     def __init__(self, model: str, config: Dict[str, Any]):
         self.model = model
         # 支持多种配置格式：Config对象或普通字典

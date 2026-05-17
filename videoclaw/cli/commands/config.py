@@ -18,7 +18,11 @@ DEFAULT_PROJECTS_DIR = Path.home() / "videoclaw-projects"
 def config(project: Optional[str], list_config: bool, get_key: Optional[str], set_key: Optional[str]):
     """管理配置"""
     if project:
-        config_path = DEFAULT_PROJECTS_DIR / project / ".videoclaw" / "config.yaml"
+        direct_path = Path(project).expanduser()
+        if direct_path.exists():
+            config_path = direct_path / ".videoclaw" / "config.yaml"
+        else:
+            config_path = DEFAULT_PROJECTS_DIR / project / ".videoclaw" / "config.yaml"
     else:
         config_path = Path.home() / ".videoclaw" / "config.yaml"
 

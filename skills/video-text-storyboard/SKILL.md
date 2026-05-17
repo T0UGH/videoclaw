@@ -114,7 +114,7 @@ description: 使用 AI 生成结构化文本分镜，作为视频生成的输入
 
 ## 保存
 
-生成后保存到 `<project>/storyboard/text_storyboard.md`
+生成后保存到 `<project>/videos/<video>/storyboard/text_storyboard.md`
 
 ## 交互确认
 

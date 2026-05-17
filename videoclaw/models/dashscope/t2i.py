@@ -12,6 +12,11 @@ from videoclaw.models.base import GenerationResult, ImageBackend
 class DashScopeT2I(ImageBackend):
     """阿里系 DashScope 文生图"""
 
+    backend_name = "dashscope"
+    auth_source = "api_key"
+    execution_surface = "provider_api"
+    billing_expectation = "api_billed"
+
     def __init__(self, model: str, config: Dict[str, Any]):
         self.model = model
         self.api_key = config.get("api_key")

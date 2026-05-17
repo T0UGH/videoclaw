@@ -188,7 +188,7 @@ I2I 生成角色九宫格 prompt 示例：
 - 细节还原：<关键细节>
 ```
 
-生成后保存到 `<project>/storyboard/text_storyboard.md`
+生成后保存到 `<project>/videos/<video>/storyboard/text_storyboard.md`
 
 用 AskUserQuestion 确认：
 > "文本分镜如下，满意吗？"

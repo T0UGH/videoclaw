@@ -1,145 +1,200 @@
 # videoclaw
 
-[中文](README.md) | **AI Video Creation CLI Tool | SOTA Model Power Couple**
-
-## ⭐ SOTA Model Power Couple ⭐
-
-| Video Generation | Image Assets |
-|------------------|--------------|
-| **Seedance 2.0** (ByteDance) | **Nano Banana Pro** (Google Gemini) |
-
-> Industry-leading video generation: Seedance 2.0 + Nano Banana Pro
+[中文](README.md) | **AI Video Creation CLI | Host-Neutral Skill Pack + CLI**
 
 ## Overview
 
-videoclaw is an AI video creation CLI tool, deeply integrated with Seedance 2.0 and Nano Banana Pro, making AI video generation as simple as telling AI your idea—it will automatically handle everything from asset generation to video synthesis.
+videoclaw is an AI video creation CLI focused on splitting the product into three layers:
 
-## Recommended Clients
+- **CLI execution layer**: project structure, model calls, artifact persistence
+- **Skill pack workflow layer**: interaction, prompts, templates, creative flow
+- **Host adapter layer**: connect the same CLI + skills to different hosts
 
-| Client | Status |
-|--------|--------|
-| Claude Code | ✅ In Use |
-| Claude Cowork | ✅ Supported |
-| OpenCode | 🔄 Coming Soon |
-| Codex | 🔄 Coming Soon |
-| OpenCowork | 🔄 Coming Soon |
-
->理论上按照各客户端的 skills 安装方式即可使用 videoclaw。(In theory, install skills according to each client's method to use videoclaw.)
-
-## Install Skills (Claude Code Plugin)
-
-To use Claude Code Skills, install the videoclaw plugin marketplace:
-
-```bash
-# Run in Claude Code
-/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
-```
-
-After installation, Claude Code will automatically load all skills.
+The recommended creative stack is still image-first with Gemini and video-first with Seedance 2.0, but the long-term product direction is no longer “Claude Code only”. The goal is to let one CLI and one canonical skill pack work across multiple hosts.
 
 ## Install CLI
 
-### Method 1: uvx (Recommended, No Installation Required)
+### Method 1: uvx (recommended)
 
 ```bash
-# Run directly (no installation)
 uvx videoclaw --help
 ```
 
-### Method 2: pip (Global Installation)
+### Method 2: pip
 
 ```bash
 pip install videoclaw
 ```
 
-### Method 3: Development Mode
+### Method 3: development mode
 
 ```bash
-# Clone project
 git clone https://github.com/T0UGH/videoclaw.git
 cd videoclaw
-
-# Install dependencies
 pip install -e .
-
-# Configure API Keys
-export ARK_API_KEY=your-ark-api-key      # VolcEngine
-export DASHSCOPE_API_KEY=your-api-key   # Alibaba Cloud
-export GOOGLE_API_KEY=your-api-key       # Google Gemini
 ```
+
+### Optional environment variables
+
+```bash
+export ARK_API_KEY=your-ark-api-key
+export DASHSCOPE_API_KEY=your-api-key
+export GOOGLE_API_KEY=your-api-key
+export OPENAI_API_KEY=your-api-key
+```
+
+## Install Skill Pack / Host Adapter
+
+videoclaw distribution is now split into two layers:
+
+1. **CLI**: standard Python package (`uvx` / `pip`)
+2. **Skill pack / host adapter**: installed per host
+
+### Claude Code adapter
+
+Claude Code can still install the adapter via marketplace:
+
+```bash
+/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
+```
+
+This marketplace entry should now be understood as the **Claude Code adapter**, not the only distribution center for videoclaw.
+
+### Other hosts
+
+The long-term direction is to make `skills/` the canonical skill pack and provide thin adapters per host:
+
+- Claude Code adapter
+- OpenClaw adapter (priority target)
+- Hermes adapter (directory-based first)
+- Codex runtime / host capability adapter
 
 ## Quick Start
 
 ```bash
-# Initialize project
-videoclaw init my-video
+# Initialize a project
+videoclaw init my-project
 
-# View help
-videoclaw --help
+# Create a video unit inside the project
+videoclaw video create my-project demo-video
+
+# List videos inside the project
+videoclaw video list my-project
 ```
 
-**Full Workflow (via skills):**
+## New Project / Video Model
 
-Claude Code will automatically invoke the appropriate skill based on your needs:
-- `video-quick-create` - Quick mode
-- `video-text-storyboard` - Standalone text storyboard generation
+videoclaw now uses:
 
-### video-quick-create Workflow
+- one `project` for shared assets and multiple videos
+- one `video` as an independent production unit
+- `render/` for single-video generation workflow by default
+- optional `clips/` for future multi-segment expansion
 
+Recommended structure:
+
+```text
+my-project/
+├── .videoclaw/
+│   ├── config.yaml
+│   ├── index.json
+│   └── logs/
+├── assets/
+│   ├── characters/
+│   ├── scenes/
+│   ├── props/
+│   └── covers/
+├── videos/
+│   └── demo-video/
+│       ├── meta.json
+│       ├── brief.md
+│       ├── storyboard/
+│       ├── images/
+│       ├── clips/
+│       └── audio/
+└── exports/
 ```
-1. Describe your idea → AI generates story outline (theme, plot, characters)
-2. Prepare assets → AI generates character 9-grid images, scene images (T2I/I2I mode, Nano Banana Pro recommended)
-3. Generate script → AI generates structured storyboard (shots, visuals, sound effects)
-4. Generate video → AI image-to-video (Seedance 2.0 recommended)
+
+## Image Backends
+
+Image generation is evolving toward a dual-track model:
+
+- `openai-image`: formal provider direction
+- `codex-host-image`: host adapter direction
+
+Current recommended config still supports the existing providers:
+
+```bash
+videoclaw config --project my-project --set models.image.backend=gemini
+videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
 ```
 
-See [video-quick-create skill](../skills/video-quick-create/SKILL.md) for detailed workflow.
+It also supports the new backend naming:
 
-### video-text-storyboard Storyboard Types
+```bash
+videoclaw config --project my-project --set models.image.backend=openai-image
+videoclaw config --project my-project --set models.image.auth=api_key
+```
 
-`video-text-storyboard` supports four video types, each with its own template and examples:
+## Video Workflow
 
-| Type | Use Cases | Key Features |
-|------|-----------|--------------|
-| Story | Emotional shorts, micro-films, animation | Narrative pacing, emotional climax, dialogue lip-sync |
-| Product | Brand ads, e-commerce videos | Hook → overview → detail → usage scene → brand end card |
-| Action | Martial arts, dance, combat, stunts | Appear → stance → core action → finish, supports motion capture video reference |
-| Scenic | Nature, cityscape, travel vlog | Wide shot → push in → multi-angle → close-up → atmospheric ending |
+### Single-video render flow
 
-## Supported Model Providers
+Single videos now persist artifacts under `videos/<slug>/render/`:
 
-| Provider | Image (T2I) | Video (I2V) | Audio (TTS) |
-|----------|--------------|-------------|-------------|
-| volcengine | Seedream | **Seedance 2.0** | TTS |
+- `input/reference.json`
+- `input/prompt.md`
+- `candidates/`
+- `selected.mp4`
+- `task.json`
+
+### Current CLI skeleton
+
+```bash
+videoclaw video create my-project demo-video
+videoclaw video list my-project
+videoclaw video status my-project demo-video
+videoclaw video generate my-project demo-video --prompt "walk forward" --provider mock
+videoclaw video select my-project demo-video v001.mp4
+```
+
+## Supported Model Providers / Backends
+
+| Provider / Backend | Image | Video | Audio |
+|--------------------|-------|-------|-------|
+| volcengine | Seedream | Seedance 2.0 | TTS |
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
-| gemini | **Nano Banana Pro** | - | - |
-| mock | For Testing | For Testing | For Testing |
-
-> ⚡ **Recommended Config**: Use **Nano Banana Pro** (gemini) for images and **Seedance 2.0** (volcengine) for video
+| gemini | Nano Banana Pro | - | - |
+| openai-image | planned / in progress | - | - |
+| codex-host-image | host-adapter path | - | - |
+| mock | testing | testing | testing |
 
 ## Skills
 
-All video creation workflows are implemented through Claude Code Skills:
+All video creation workflows live in the `skills/` directory as the canonical skill pack. Current skills include:
 
-| Skill | Description |
-|-------|-------------|
-| video-quick-create | Quick video creation (story type) |
-| video-text-storyboard | Text storyboard generation (story/product/action/scenic) |
-| video-t2i | Text-to-image |
-| video-i2i | Image-to-image |
-| video-i2v | Image-to-video |
-| video-audio | Audio generation |
-| video-merge | Video merging |
-| video-config | Configuration management |
-| video-upload | Cloud upload |
-| video-publish-douyin | Publish to Douyin |
-| video-publish-kuaishou | Publish to Kuaishou |
+- `video-quick-create`
+- `video-text-storyboard`
+- `video-t2i`
+- `video-i2i`
+- `video-i2v`
+- `video-audio`
+- `video-merge`
+- `video-config`
+- `video-upload`
+- `video-publish-douyin`
+- `video-publish-kuaishou`
 
 ## CLI Commands
 
 | Command | Description |
 |---------|-------------|
-| `videoclaw init` | Initialize project |
+| `videoclaw init` | Initialize a project |
+| `videoclaw video create` | Create a video |
+| `videoclaw video list` | List videos |
+| `videoclaw video status` | Show video status |
+| `videoclaw video generate` | Generate a single-video candidate |
+| `videoclaw video select` | Select a single-video candidate |
 | `videoclaw t2i` | Text-to-image |
 | `videoclaw i2i` | Image-to-image |
 | `videoclaw i2v` | Image-to-video |
@@ -148,82 +203,22 @@ All video creation workflows are implemented through Claude Code Skills:
 | `videoclaw config` | Configuration management |
 | `videoclaw upload` | Cloud upload |
 | `videoclaw preview` | Preview files |
-| `videoclaw publish` | Publish to social platforms |
-
-Supports auto-publishing video to Douyin, Kuaishou and other platforms. Publishing reference [social-auto-upload](https://github.com/dreammis/social-auto-upload).
-
-To publish to Douyin, use the `video-publish-douyin` skill.
+| `videoclaw publish` | Publish to social platforms (optional dependency) |
 
 ## Configuration
 
-See [docs/configuration.md](docs/configuration.md) for full configuration options.
+See [docs/configuration.md](docs/configuration.md) for the full configuration reference.
 
-VolcEngine API Key: [Official Docs](https://www.volcengine.com/docs/82379/1099455)
+Priority order:
 
-Gemini API Key: [Official Docs](https://ai.google.dev/gemini-api/docs)
-
-### Environment Variables
-
-```bash
-export ARK_API_KEY=xxx           # VolcEngine ARK API Key
-export DASHSCOPE_API_KEY=xxx    # Alibaba Cloud API Key
-export GOOGLE_API_KEY=xxx        # Google API Key
-```
-
-### Global Config
-
-```bash
-# Image provider - Nano Banana Pro recommended (gemini)
-videoclaw config --global --set models.image.provider=gemini
-
-# Video provider - Seedance 2.0 recommended (volcengine)
-videoclaw config --global --set models.video.provider=volcengine
-```
-
-### Project Config
-
-```bash
-videoclaw config --project my-video --set models.image.provider=gemini
-```
-
-### Config Priority
-
-1. Environment variables (highest)
+1. Environment variables
 2. Global config `~/.videoclaw/config.yaml`
 3. Project config `<project>/.videoclaw/config.yaml`
-
-## Mobile Usage
-
-For mobile, we recommend [Happy](https://github.com/slopus/happy), which can connect to Claude Code on your PC for video creation.
-
-For syncing image and video assets, we recommend Google Drive, iCloud, or Nutstore (Jianguoyun)—all have automatic folder sync to cloud features.
 
 ## Development
 
 ```bash
-# Run tests
 pytest
-
-# Code checking
 ruff check .
 black .
 ```
-
-## Release New Version
-
-```bash
-# 1. Update version (modify version in pyproject.toml)
-# 2. Commit changes
-git add pyproject.toml && git commit -m "chore: bump version to x.x.x"
-
-# 3. Push to GitHub
-git push
-
-# 4. Build and publish to PyPI
-uvx --from build pyproject-build
-uvx twine upload dist/*
-```
-
-## License
-
-MIT

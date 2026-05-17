@@ -17,6 +17,7 @@ class Config:
         "volcengine.sk": "VOLCENGINE_SK",
         "ark.api_key": "ARK_API_KEY",
         "google.api_key": "GOOGLE_API_KEY",
+        "openai.api_key": "OPENAI_API_KEY",
     }
 
     def __init__(self, project_path: Optional[Path] = None):
@@ -36,7 +37,6 @@ class Config:
         return result
 
     def _load(self):
-        # 1. 加载全局配置
         global_config = {}
         global_config_path = Path.home() / ".videoclaw" / "config.yaml"
         if global_config_path.exists():
@@ -44,9 +44,8 @@ class Config:
                 with open(global_config_path) as f:
                     global_config = yaml.safe_load(f) or {}
             except yaml.YAMLError:
-                pass  # 忽略损坏的配置文件
+                pass
 
-        # 2. 加载项目配置
         project_config = {}
         if self._project_path:
             project_config_path = self._project_path / ".videoclaw" / "config.yaml"
@@ -55,26 +54,21 @@ class Config:
                     with open(project_config_path) as f:
                         project_config = yaml.safe_load(f) or {}
                 except yaml.YAMLError:
-                    pass  # 忽略损坏的配置文件
+                    pass
 
-        # 3. 合并：全局 + 项目（项目覆盖全局）
         self._config = Config._deep_merge(global_config, project_config)
 
     def get(self, key: str, default: Any = None) -> Any:
         """获取配置值"""
-        # 1. 检查环境变量 (最高优先级)
-        # 映射常用环境变量
         if key in Config.ENV_MAPPINGS:
             env_key = Config.ENV_MAPPINGS[key]
             if env_key in os.environ:
                 return os.environ[env_key]
 
-        # 通用的环境变量映射
         env_key = f"VIDEOCLAW_{key.upper().replace('.', '_')}"
         if env_key in os.environ:
             return os.environ[env_key]
 
-        # 2. 返回配置值
         keys = key.split(".")
         value = self._config
         for k in keys:
@@ -94,4 +88,26 @@ class Config:
             "provider": self.get("storage.provider", "local"),
             "upload_on_generate": self.get("storage.upload_on_generate", False),
             "credentials_path": self.get("storage.credentials_path"),
+        }
+
+    def get_image_backend_config(self) -> Dict[str, Any]:
+        """获取图片后端配置"""
+        backend = self.get("models.image.backend") or self.get("models.image.provider", "volcengine")
+        model = self.get("models.image.model")
+        auth = self.get("models.image.auth")
+        codex_mode = self.get("models.image.codex_mode")
+
+        provider_api_keys = {
+            "google.api_key": self.get("google.api_key"),
+            "openai.api_key": self.get("openai.api_key"),
+            "dashscope.api_key": self.get("dashscope.api_key"),
+            "ark.api_key": self.get("ark.api_key"),
+        }
+
+        return {
+            "backend": backend,
+            "model": model,
+            "auth": auth,
+            "codex_mode": codex_mode,
+            **provider_api_keys,
         }

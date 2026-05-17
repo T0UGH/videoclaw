@@ -1,48 +1,22 @@
 # videoclaw
 
-[English](README_en.md) | **AI 视频创作 CLI 工具 | SOTA 模型强强联合**
-
-## ⭐ SOTA 模型强强联合 ⭐
-
-| 视频生成 | 图片素材 |
-|----------|----------|
-| **Seedance 2.0** (字节跳动) | **Nano Banana Pro** (Google Gemini) |
-
-> 业界顶级视频生成方案：Seedance 2.0 + Nano Banana Pro 强强联合
+[English](README_en.md) | **AI 视频创作 CLI 工具 | 宿主中立 Skill Pack + CLI**
 
 ## 概述
 
-videoclaw 是 AI 视频创作 CLI 工具，深度集成 Seedance 2.0 + Nano Banana Pro 业界顶级模型，让 AI 视频生成像说话一样简单——告诉 AI 你的想法，它会自动完成从素材生成到视频合成的全部工作。
+videoclaw 是 AI 视频创作 CLI 工具，目标是把视频创作拆成：
 
-## 推荐客户端
+- **CLI 执行层**：负责项目结构、模型调用、产物归档；
+- **Skill Pack 工作流层**：负责交互、模板和创作流程；
+- **Host Adapter 适配层**：负责把同一套 skill pack 接到不同宿主。
 
-| 客户端 | 状态 |
-|--------|------|
-| Claude Code | ✅ 已在使用 |
-| Claude Cowork | ✅ 已适配 |
-| OpenCode | 🔄 适配中 |
-| Codex | 🔄 适配中 |
-| OpenCowork | 🔄 适配中 |
-
-> 理论上按照各客户端的 skills 安装方式即可使用 videoclaw。
-
-## 安装 Skills（Claude Code 插件）
-
-要使用 Claude Code Skills，需要安装 videoclaw 插件市场：
-
-```bash
-# 在 Claude Code 中运行
-/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
-```
-
-安装后，Claude Code 会自动加载所有 skills。
+当前推荐组合仍然是：图像优先 Gemini，视频优先 Seedance 2.0；但 videoclaw 的长期方向不再是“只给 Claude Code 用”，而是让同一套 CLI + skills 可以被多个宿主复用。
 
 ## 安装 CLI
 
 ### 方式一：uvx（推荐，无需安装）
 
 ```bash
-# 直接运行（无需安装）
 uvx videoclaw --help
 ```
 
@@ -55,91 +29,172 @@ pip install videoclaw
 ### 方式三：开发模式
 
 ```bash
-# 克隆项目
 git clone https://github.com/T0UGH/videoclaw.git
 cd videoclaw
-
-# 安装依赖
 pip install -e .
-
-# 配置 API Key
-export ARK_API_KEY=your-ark-api-key      # 火山引擎
-export DASHSCOPE_API_KEY=your-api-key   # 阿里云
-export GOOGLE_API_KEY=your-api-key       # Google Gemini
 ```
+
+### 可选环境变量
+
+```bash
+export ARK_API_KEY=your-ark-api-key
+export DASHSCOPE_API_KEY=your-api-key
+export GOOGLE_API_KEY=your-api-key
+export OPENAI_API_KEY=your-api-key
+```
+
+## 安装 Skill Pack / Host Adapter
+
+videoclaw 的分发现在分成两层：
+
+1. **CLI**：标准 Python 包（`uvx` / `pip`）
+2. **Skill Pack / Host Adapter**：按宿主选择安装方式
+
+### Claude Code Adapter
+
+Claude Code 目前仍可通过 marketplace 安装适配层：
+
+```bash
+/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
+```
+
+这个 marketplace 入口现在应理解为 **Claude Code adapter**，而不是 videoclaw 的唯一分发中心。
+
+### 其他宿主
+
+长期方向是让 `skills/` 成为 canonical skill pack，再为不同宿主提供薄 adapter：
+
+- Claude Code adapter
+- OpenClaw adapter（优先目标）
+- Hermes adapter（先走目录式接入）
+- Codex runtime / host capability adapter
 
 ## 快速开始
 
 ```bash
-# 初始化项目
-videoclaw init my-video
+# 初始化一个 project
+videoclaw init my-project
 
-# 查看帮助
-videoclaw --help
+# 在 project 下创建一个视频单元
+videoclaw video create my-project demo-video
+
+# 查看视频列表
+videoclaw video list my-project
 ```
 
-**完整流程（通过 skill 调用）：**
+### 新的 Project / Video 模型
 
-Claude Code 会根据你的需求自动调用相应的 skill：
-- `video-quick-create` - 快速模式
-- `video-text-storyboard` - 独立文本分镜生成
+videoclaw 现在采用：
 
-### video-quick-create 流程
+- 一个 `project` 承载共享资产与多个视频；
+- 一个 `video` 是独立产出单元；
+- 单段视频默认使用 `render/` 管理生成过程；
+- 多段视频后续可扩展到 `clips/`。
 
+推荐目录结构：
+
+```text
+my-project/
+├── .videoclaw/
+│   ├── config.yaml
+│   ├── index.json
+│   └── logs/
+├── assets/
+│   ├── characters/
+│   ├── scenes/
+│   ├── props/
+│   └── covers/
+├── videos/
+│   └── demo-video/
+│       ├── meta.json
+│       ├── brief.md
+│       ├── storyboard/
+│       ├── images/
+│       ├── clips/
+│       └── audio/
+└── exports/
 ```
-1. 描述想法 → AI 生成故事大纲（主题、剧情、角色）
-2. 准备素材 → AI 生成角色九宫格图、场景图（T2I/I2I 模式，推荐 Nano Banana Pro）
-3. 生成脚本 → AI 生成结构化分镜（镜头、画面、音效）
-4. 生成视频 → AI 图生视频（推荐 Seedance 2.0）
+
+## 图片 Backend
+
+图片能力正在升级为双轨模型：
+
+- `openai-image`：正式 provider（长期方向）
+- `codex-host-image`：宿主适配器（低门槛接入）
+
+当前配置推荐统一使用：
+
+```bash
+videoclaw config --project my-project --set models.image.backend=gemini
+videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
 ```
 
-详细流程见 [video-quick-create skill](../skills/video-quick-create/SKILL.md)
+也兼容新的 backend 命名：
 
-### video-text-storyboard 分镜类型
+```bash
+videoclaw config --project my-project --set models.image.backend=openai-image
+videoclaw config --project my-project --set models.image.auth=api_key
+```
 
-`video-text-storyboard` 支持四种视频类型，每种类型有独立的模板和示例：
+## 视频工作流
 
-| 类型 | 适用场景 | 特点 |
-|------|---------|------|
-| 故事类 | 情感短片、微电影、动画 | 叙事节奏、情绪高潮、对白口型 |
-| 产品展示类 | 品牌广告、电商视频 | 开场抓眼→全景→细节→使用场景→落版 |
-| 角色动作类 | 武侠、舞蹈、格斗、特技 | 亮相→起势→核心动作→收尾，支持动捕视频引用 |
-| 风景旅拍类 | 自然风光、城市街拍 | 大景别→推进→多角度→特写→意境落版 |
+### 单段视频
+
+单段视频会在 `videos/<slug>/render/` 下落盘：
+
+- `input/reference.json`
+- `input/prompt.md`
+- `candidates/`
+- `selected.mp4`
+- `task.json`
+
+### 当前可用命令骨架
+
+```bash
+videoclaw video create my-project demo-video
+videoclaw video list my-project
+videoclaw video status my-project demo-video
+videoclaw video generate my-project demo-video --prompt "walk forward" --provider mock
+videoclaw video select my-project demo-video v001.mp4
+```
 
 ## 支持的模型提供商
 
-| 提供商 | 图像 (T2I) | 视频 (I2V) | 音频 (TTS) |
-|--------|-------------|--------------|-------------|
-| volcengine | Seedream | **Seedance 2.0** | TTS |
+| 提供商 / Backend | 图像 | 视频 | 音频 |
+|------------------|------|------|------|
+| volcengine | Seedream | Seedance 2.0 | TTS |
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
-| gemini | **Nano Banana Pro** | - | - |
+| gemini | Nano Banana Pro | - | - |
+| openai-image | 规划中 / 接入中 | - | - |
+| codex-host-image | 宿主适配路径 | - | - |
 | mock | 测试用 | 测试用 | 测试用 |
-
-> ⚡ **推荐配置**：图像用 **Nano Banana Pro** (gemini)，视频用 **Seedance 2.0** (volcengine)，体验业界最前沿的 AI 视频生成能力
 
 ## Skills
 
-所有视频创作流程通过 Claude Code Skills 实现：
+所有视频创作流程通过 `skills/` 目录中的 skill pack 定义。当前主要 skill 包括：
 
-| Skill | 说明 |
-|-------|------|
-| video-quick-create | 快速创建视频（故事类） |
-| video-text-storyboard | 文本分镜生成（故事/产品/动作/风景） |
-| video-t2i | 文生图 |
-| video-i2i | 图生图 |
-| video-i2v | 图生视频 |
-| video-audio | 音频生成 |
-| video-merge | 视频合并 |
-| video-config | 配置管理 |
-| video-upload | 云盘上传 |
-| video-publish-douyin | 发布到抖音 |
-| video-publish-kuaishou | 发布到快手 |
+- `video-quick-create`
+- `video-text-storyboard`
+- `video-t2i`
+- `video-i2i`
+- `video-i2v`
+- `video-audio`
+- `video-merge`
+- `video-config`
+- `video-upload`
+- `video-publish-douyin`
+- `video-publish-kuaishou`
 
 ## CLI 命令
 
 | 命令 | 说明 |
 |------|------|
-| `videoclaw init` | 初始化项目 |
+| `videoclaw init` | 初始化 project |
+| `videoclaw video create` | 创建 video |
+| `videoclaw video list` | 列出 video |
+| `videoclaw video status` | 查看 video 状态 |
+| `videoclaw video generate` | 生成单段视频候选 |
+| `videoclaw video select` | 选择单段视频候选 |
 | `videoclaw t2i` | 文生图 |
 | `videoclaw i2i` | 图生图 |
 | `videoclaw i2v` | 图生视频 |
@@ -148,82 +203,24 @@ Claude Code 会根据你的需求自动调用相应的 skill：
 | `videoclaw config` | 配置管理 |
 | `videoclaw upload` | 云盘上传 |
 | `videoclaw preview` | 预览文件 |
-| `videoclaw publish` | 发布到社交平台 |
-
-支持自动发布视频到抖音、快手等平台。发布参考 [social-auto-upload](https://github.com/dreammis/social-auto-upload)。
-
-如需发布到抖音，使用 `video-publish-douyin` skill。
+| `videoclaw publish` | 发布到社交平台（可选依赖） |
 
 ## 配置
 
 详细配置项清单见 [docs/configuration.md](docs/configuration.md)
 
-火山系模型 API Key 获取详见[官方文档](https://www.volcengine.com/docs/82379/1099455?lang=zh)
-
-Gemini 系模型 API Key 获取和使用详见[官方文档](https://ai.google.dev/gemini-api/docs?hl=zh-cn)
-
-### 环境变量
-
-```bash
-export ARK_API_KEY=xxx           # 火山引擎方舟 API Key
-export DASHSCOPE_API_KEY=xxx    # 阿里云 API Key
-export GOOGLE_API_KEY=xxx        # Google API Key
-```
-
-### 全局配置
-
-```bash
-# 图像提供商 - 推荐使用 Nano Banana Pro (gemini)
-videoclaw config --global --set models.image.provider=gemini
-
-# 视频提供商 - 推荐使用 Seedance 2.0 (volcengine)
-videoclaw config --global --set models.video.provider=volcengine
-```
-
-### 项目配置
-
-```bash
-videoclaw config --project my-video --set models.image.provider=gemini
-```
-
-### 配置优先级
+配置优先级：
 
 1. 环境变量（最高）
 2. 全局配置 `~/.videoclaw/config.yaml`
 3. 项目配置 `<project>/.videoclaw/config.yaml`
 
-## 手机端使用
-
-手机端推荐使用 [Happy](https://github.com/slopus/happy)，可连接 PC 端的 Claude Code 进行视频创作。
-
-图片和视频素材的同步推荐使用 Google Drive、iCloud 或坚果云，这些工具都有自动同步本地文件夹到云盘的功能。
-
 ## 开发
 
 ```bash
-# 运行测试
 pytest
-
-# 代码检查
 ruff check .
 black .
 ```
-
-## 发布新版本
-
-```bash
-# 1. 更新版本号（修改 pyproject.toml 中的 version）
-# 2. 提交更改
-git add pyproject.toml && git commit -m "chore: bump version to x.x.x"
-
-# 3. 推送到 GitHub
-git push
-
-# 4. 构建并发布到 PyPI
-uvx --from build pyproject-build
-uvx twine upload dist/*
-```
-
-## License
 
 MIT

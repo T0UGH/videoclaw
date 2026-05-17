@@ -3,23 +3,40 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from videoclaw.models.base import ImageBackend, VideoBackend, AudioBackend
+from videoclaw.models.base import AudioBackend, ImageBackend, VideoBackend
+
+IMAGE_BACKEND_ALIASES = {
+    "openai-image": "gemini",
+}
+
+
+def normalize_image_backend(backend: str) -> str:
+    """归一化图片后端名称"""
+    return IMAGE_BACKEND_ALIASES.get(backend, backend)
 
 
 def get_image_backend(provider: str, model: str, config: Dict[str, Any]) -> ImageBackend:
     """获取图像生成后端"""
-    if provider == "dashscope":
+    normalized = normalize_image_backend(provider)
+
+    if normalized == "dashscope":
         from videoclaw.models.dashscope.t2i import DashScopeT2I
         return DashScopeT2I(model, config)
-    elif provider == "volcengine":
+    elif normalized == "volcengine":
         from videoclaw.models.volcengine.seedream import VolcEngineSeedream
         return VolcEngineSeedream(model, config)
-    elif provider == "mock":
+    elif normalized == "mock":
         from videoclaw.models.mock.image import MockImageBackend
         return MockImageBackend(model, config)
-    elif provider == "gemini":
+    elif normalized == "codex-host-image":
+        from videoclaw.models.codex_host_image import CodexHostImageBackend
+        return CodexHostImageBackend(model, config)
+    elif normalized == "gemini":
         from videoclaw.models.gemini.image import GeminiImageBackend
         return GeminiImageBackend(model, config)
+    elif normalized == "openai-image":
+        from videoclaw.models.openai_image import OpenAIImageBackend
+        return OpenAIImageBackend(model, config)
     else:
         raise ValueError(f"Unknown image provider: {provider}")
 

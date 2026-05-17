@@ -17,6 +17,11 @@ logger = get_logger(name="gemini.image")
 class GeminiImageBackend(ImageBackend):
     """Google Gemini 图像生成后端 (Nano Banana)"""
 
+    backend_name = "gemini"
+    auth_source = "api_key"
+    execution_surface = "provider_api"
+    billing_expectation = "api_billed"
+
     DEFAULT_MODEL = "gemini-3-pro-image-preview"
 
     SUPPORTED_MODELS = [

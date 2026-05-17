@@ -27,6 +27,11 @@ class ModelBackend(ABC):
 class ImageBackend(ModelBackend):
     """图像生成后端"""
 
+    backend_name = "unknown-image-backend"
+    auth_source = "unknown"
+    execution_surface = "unknown"
+    billing_expectation = "unknown"
+
     @abstractmethod
     def text_to_image(self, prompt: str, **kwargs) -> GenerationResult:
         """文生图"""

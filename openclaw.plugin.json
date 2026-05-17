@@ -1,0 +1,17 @@
+{
+  "name": "videoclaw-openclaw-adapter",
+  "description": "OpenClaw adapter for the videoclaw canonical skill pack and CLI workflow",
+  "version": "0.2.0",
+  "entry": {
+    "type": "skills-directory",
+    "path": "./skills"
+  },
+  "cli": {
+    "binary": "videoclaw",
+    "install": "pip install videoclaw"
+  },
+  "notes": [
+    "This adapter treats videoclaw skills as the canonical workflow source.",
+    "OpenClaw-specific manifest fields may need adjustment to match the host's final schema."
+  ]
+}
