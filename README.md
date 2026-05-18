@@ -183,8 +183,8 @@ videoclaw video select my-project demo-video v001.mp4
 | volcengine | Seedream | Seedance 2.0 | TTS |
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
 | gemini | Nano Banana Pro | - | - |
-| openai-image | 规划中 / 接入中 | - | - |
-| codex-host-image | 宿主适配路径 | - | - |
+| openai-image | OpenAI 官方图片 API | - | - |
+| codex-host-image | Hermes-style / Codex OAuth 原生链路 | - | - |
 | mock | 测试用 | 测试用 | 测试用 |
 
 ## Skills
