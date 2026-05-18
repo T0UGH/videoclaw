@@ -1,18 +1,36 @@
 # videoclaw
 
-[English](README_en.md) | **AI 视频创作 CLI + Skill Pack**
+[English](README_en.md) | **AI 视频创作 CLI 工具 | Codex 订阅出图 + Seedance 官方视频 API**
+
+## ⭐ 主推荐链路 ⭐
+
+| 视频生成 | 图片素材 |
+|----------|----------|
+| **Seedance 2.0** (字节跳动官方 Ark API) | **Codex OAuth-native** (无需 OpenAI API key) |
+
+> 如果你已经有 Codex / ChatGPT 订阅与登录态，现在可以直接走 Codex 原生链路出图；视频则走火山官方 Seedance API。
 
 ## 概述
 
-videoclaw 现在的产品形态已经收口为两层：
+videoclaw 是 AI 视频创作 CLI 工具，目标是把 AI 视频创作真正做成一条能跑通的工作流：
 
-1. **CLI 执行层**：负责项目结构、模型调用、产物归档
-2. **Skill Pack 工作流层**：负责交互、模板、提示词和创作流程
+- **图片**：默认走 `codex-host-image`，通过 Codex / ChatGPT OAuth 原生链路出图
+- **视频**：默认走火山引擎 Ark / Seedance 官方 API
+- **结构**：一个 `project` 管多个 `video`，支持单段 `render/` 和多段 `clips/`
+- **分发**：`videoclaw` CLI + 可安装的 skill pack（`skills.sh`）
 
-不再把宿主原生 plugin 作为主线分发方式。主分发方式是：
+也就是说，这个项目现在不只是 prompt 模板集合，而是：
 
-- 安装 `videoclaw` CLI
-- 用 `skills.sh` / `skills add` 安装 `skills/` 目录中的 skill pack
+> **一个能真实出图、真实出视频、真实合并产物的 AI 视频创作 CLI + Skill Pack。**
+
+## 推荐客户端
+
+| 客户端 | 状态 |
+|--------|------|
+| 支持 `skills.sh` 的客户端 | ✅ 主推荐 |
+| Codex / ChatGPT 登录环境 | ✅ 默认图片链路 |
+| Claude Code | ✅ 可用，但不再是主分发方式 |
+| 其他 skills-compatible hosts | ✅ 原则上可接入 |
 
 ## 安装 CLI
 
@@ -36,15 +54,6 @@ cd videoclaw
 pip install -e .
 ```
 
-### 可选环境变量
-
-```bash
-export ARK_API_KEY=your-ark-api-key
-export DASHSCOPE_API_KEY=your-api-key
-export GOOGLE_API_KEY=your-api-key
-export OPENAI_API_KEY=your-api-key
-```
-
 ## 安装 Skill Pack（主推荐方式）
 
 推荐直接通过 `skills.sh` 安装整个 skill pack：
@@ -66,19 +75,28 @@ npx skills add T0UGH/videoclaw --skill video-quick-create
 npx skills add T0UGH/videoclaw --list
 ```
 
-这条路径现在是 videoclaw 的主分发方式。`skills/` 目录是唯一的 workflow/source-of-truth。
+这条路径现在是 videoclaw 的主分发方式。`skills/` 目录是 workflow 的唯一事实源。
 
-## 快速开始
+## 快速开始（30 秒）
 
 ```bash
-# 初始化一个 project
+# 1. 初始化一个 project
 videoclaw init my-project
 
-# 在 project 下创建一个视频单元
+# 2. 在 project 下创建一个视频单元
 videoclaw video create my-project demo-video
 
-# 查看视频列表
+# 3. 查看视频列表
 videoclaw video list my-project
+```
+
+如果你已经有 Codex / ChatGPT 登录环境，建议把图片默认链路显式设成：
+
+```bash
+videoclaw config --project my-project --set models.image.backend=codex-host-image
+videoclaw config --project my-project --set models.image.model=gpt-image-2-medium
+videoclaw config --project my-project --set models.image.auth=chatgpt_login
+videoclaw config --project my-project --set models.image.transport=codex_oauth
 ```
 
 ## 新的 Project / Video 模型
@@ -118,34 +136,33 @@ my-project/
 
 图片能力现在有两条正式可用路径：
 
-- `codex-host-image`：Hermes-style / OAuth-native Codex image provider（默认推荐）
-- `openai-image`：OpenAI 官方 API provider
+### 1. `codex-host-image`（默认推荐）
 
-如果你已经有 Codex / ChatGPT 登录环境，推荐直接走：
+这是当前最推荐的图片链路：
 
-```bash
-videoclaw config --project my-project --set models.image.backend=codex-host-image
-videoclaw config --project my-project --set models.image.model=gpt-image-2-medium
-videoclaw config --project my-project --set models.image.auth=chatgpt_login
-videoclaw config --project my-project --set models.image.transport=codex_oauth
-```
-
-支持的 Codex 图片模型档位：
-
-- `gpt-image-2-low`
-- `gpt-image-2-medium`
-- `gpt-image-2-high`
+- Hermes-style / OAuth-native Codex image provider
+- 不需要 `OPENAI_API_KEY`
+- 读取本机 Codex / ChatGPT 登录态
+- 支持：
+  - `gpt-image-2-low`
+  - `gpt-image-2-medium`
+  - `gpt-image-2-high`
 
 推荐默认值：`gpt-image-2-medium`
 
-如果你不走 Codex 订阅链路，再切到 OpenAI 或其他 provider，例如：
+### 2. `openai-image`
+
+这是正式的 OpenAI API provider：
+
+- 需要 `OPENAI_API_KEY`
+- 直接调用 OpenAI 官方图片 API
+
+如果你不走 Codex 订阅链路，可以改成：
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=openai-image
 videoclaw config --project my-project --set models.image.auth=api_key
 ```
-
-如果你配置了 `OPENAI_API_KEY`，`openai-image` 会直接调用 OpenAI 官方图片 API。
 
 ## 视频工作流
 
@@ -193,24 +210,26 @@ videoclaw merge --project my-project --output final.mp4
 | dashscope | wan2.6-t2i | wan2.6-i2v | cosyvoice-v2 |
 | gemini | Nano Banana Pro | - | - |
 | openai-image | OpenAI 官方图片 API | - | - |
-| codex-host-image | Hermes-style / Codex OAuth 原生链路 | - | - |
+| codex-host-image | Codex OAuth 原生链路 | - | - |
 | mock | 测试用 | 测试用 | 测试用 |
 
 ## Skills
 
 所有视频创作流程通过 `skills/` 目录中的 skill pack 定义。当前主要 skill 包括：
 
-- `video-quick-create`
-- `video-text-storyboard`
-- `video-t2i`
-- `video-i2i`
-- `video-i2v`
-- `video-audio`
-- `video-merge`
-- `video-config`
-- `video-upload`
-- `video-publish-douyin`
-- `video-publish-kuaishou`
+| Skill | 说明 |
+|-------|------|
+| video-quick-create | 快速创建视频（故事类） |
+| video-text-storyboard | 文本分镜生成（故事/产品/动作/风景） |
+| video-t2i | 文生图 |
+| video-i2i | 图生图 |
+| video-i2v | 图生视频 |
+| video-audio | 音频生成 |
+| video-merge | 视频合并 |
+| video-config | 配置管理 |
+| video-upload | 云盘上传 |
+| video-publish-douyin | 发布到抖音 |
+| video-publish-kuaishou | 发布到快手 |
 
 ## CLI 命令
 
@@ -247,6 +266,15 @@ videoclaw merge --project my-project --output final.mp4
 2. 全局配置 `~/.videoclaw/config.yaml`
 3. 项目配置 `<project>/.videoclaw/config.yaml`
 
+## 当前真实跑通的主链路
+
+目前已经真实冒烟通过的主链路：
+
+- 图片：`codex-host-image`
+- 视频：`volcengine` / Ark / Seedance
+
+也就是说，这个项目现在不是只停在设计上，而是主推荐图片链路和主推荐视频链路都已经真实跑通。
+
 ## 开发
 
 ```bash
@@ -254,11 +282,3 @@ pytest
 ruff check .
 black .
 ```
-
-## 说明
-
-- `skills/` 是 canonical skill pack，也是 workflow 的唯一事实源
-- 宿主侧的差异应尽量由 `skills.sh` 安装机制吸收，而不是继续深做各宿主原生 plugin
-- 当前主推荐链路已经真实跑通：
-  - 图片：`codex-host-image`
-  - 视频：`volcengine` / Ark / Seedance
