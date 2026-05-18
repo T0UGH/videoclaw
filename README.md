@@ -1,22 +1,18 @@
 # videoclaw
 
-[English](README_en.md) | **AI 视频创作 CLI 工具 | 宿主中立 Skill Pack + CLI**
+[English](README_en.md) | **AI 视频创作 CLI + Skill Pack**
 
 ## 概述
 
-videoclaw 是 AI 视频创作 CLI 工具，目标是把视频创作拆成：
+videoclaw 现在的产品形态已经收口为两层：
 
-- **CLI 执行层**：负责项目结构、模型调用、产物归档；
-- **Skill Pack 工作流层**：负责交互、模板和创作流程；
-- **Host Adapter 适配层**：负责把同一套 skill pack 接到不同宿主。
+1. **CLI 执行层**：负责项目结构、模型调用、产物归档
+2. **Skill Pack 工作流层**：负责交互、模板、提示词和创作流程
 
-当前推荐组合是：
+不再把宿主原生 plugin 作为主线分发方式。主分发方式是：
 
-- **默认图片链路**：`codex-host-image`（如果你有 Codex / ChatGPT 登录环境）
-- **高质量图片链路**：Gemini
-- **默认视频链路**：Seedance 2.0
-
-也就是说，videoclaw 现在优先把“有 Codex 订阅就能直接出图”作为默认体验路径，同时保留其他正式 provider 和宿主中立演进方向。
+- 安装 `videoclaw` CLI
+- 用 `skills.sh` / `skills add` 安装 `skills/` 目录中的 skill pack
 
 ## 安装 CLI
 
@@ -49,31 +45,28 @@ export GOOGLE_API_KEY=your-api-key
 export OPENAI_API_KEY=your-api-key
 ```
 
-## 安装 Skill Pack / Host Adapter
+## 安装 Skill Pack（主推荐方式）
 
-videoclaw 的分发现在分成两层：
-
-1. **CLI**：标准 Python 包（`uvx` / `pip`）
-2. **Skill Pack / Host Adapter**：按宿主选择安装方式
-
-### Claude Code Adapter
-
-Claude Code 目前仍可通过 marketplace 安装适配层：
+推荐直接通过 `skills.sh` 安装整个 skill pack：
 
 ```bash
-/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
+npx skills add T0UGH/videoclaw --all
 ```
 
-这个 marketplace 入口现在应理解为 **Claude Code adapter**，而不是 videoclaw 的唯一分发中心。
+常见变体：
 
-### 其他宿主
+```bash
+# 本地开发时从仓库根目录安装
+npx skills add . --all
 
-长期方向是让 `skills/` 成为 canonical skill pack，再为不同宿主提供薄 adapter：
+# 只安装一个 skill
+npx skills add T0UGH/videoclaw --skill video-quick-create
 
-- Claude Code adapter
-- OpenClaw adapter（优先目标）
-- Hermes adapter（先走目录式接入）
-- Codex runtime / host capability adapter
+# 查看可安装的 skills
+npx skills add T0UGH/videoclaw --list
+```
+
+这条路径现在是 videoclaw 的主分发方式。`skills/` 目录是唯一的 workflow/source-of-truth。
 
 ## 快速开始
 
@@ -88,14 +81,14 @@ videoclaw video create my-project demo-video
 videoclaw video list my-project
 ```
 
-### 新的 Project / Video 模型
+## 新的 Project / Video 模型
 
 videoclaw 现在采用：
 
-- 一个 `project` 承载共享资产与多个视频；
-- 一个 `video` 是独立产出单元；
-- 单段视频默认使用 `render/` 管理生成过程；
-- 多段视频后续可扩展到 `clips/`。
+- 一个 `project` 承载共享资产与多个视频
+- 一个 `video` 是独立产出单元
+- 单段视频默认使用 `render/` 管理生成过程
+- 多段视频可扩展到 `clips/`
 
 推荐目录结构：
 
@@ -166,7 +159,17 @@ videoclaw config --project my-project --set models.image.auth=api_key
 - `selected.mp4`
 - `task.json`
 
-### 当前可用命令骨架
+### 多段视频
+
+多段视频可以使用 `clips/`：
+
+- `clips/<clip-id>/input/reference.json`
+- `clips/<clip-id>/input/prompt.md`
+- `clips/<clip-id>/candidates/`
+- `clips/<clip-id>/selected.mp4`
+- `clips/<clip-id>/task.json`
+
+### 当前可用命令
 
 ```bash
 videoclaw video create my-project demo-video
@@ -174,6 +177,12 @@ videoclaw video list my-project
 videoclaw video status my-project demo-video
 videoclaw video generate my-project demo-video --prompt "walk forward" --provider mock
 videoclaw video select my-project demo-video v001.mp4
+
+videoclaw video clip create my-project demo-video clip-01
+videoclaw video clip generate my-project demo-video clip-01 --prompt "turn head" --provider mock
+videoclaw video clip select my-project demo-video clip-01 v001.mp4
+
+videoclaw merge --project my-project --output final.mp4
 ```
 
 ## 支持的模型提供商
@@ -213,9 +222,14 @@ videoclaw video select my-project demo-video v001.mp4
 | `videoclaw video status` | 查看 video 状态 |
 | `videoclaw video generate` | 生成单段视频候选 |
 | `videoclaw video select` | 选择单段视频候选 |
+| `videoclaw video clip create` | 创建 clip |
+| `videoclaw video clip generate` | 生成 clip 候选 |
+| `videoclaw video clip select` | 选择 clip 候选 |
 | `videoclaw t2i` | 文生图 |
 | `videoclaw i2i` | 图生图 |
+| `videoclaw image smoke` | 图片 backend 冒烟 |
 | `videoclaw i2v` | 图生视频 |
+| `videoclaw video-smoke` | 视频 backend 冒烟 |
 | `videoclaw audio` | 生成音频 |
 | `videoclaw merge` | 合并视频 |
 | `videoclaw config` | 配置管理 |
@@ -241,4 +255,10 @@ ruff check .
 black .
 ```
 
-MIT
+## 说明
+
+- `skills/` 是 canonical skill pack，也是 workflow 的唯一事实源
+- 宿主侧的差异应尽量由 `skills.sh` 安装机制吸收，而不是继续深做各宿主原生 plugin
+- 当前主推荐链路已经真实跑通：
+  - 图片：`codex-host-image`
+  - 视频：`volcengine` / Ark / Seedance

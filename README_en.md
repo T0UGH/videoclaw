@@ -1,22 +1,18 @@
 # videoclaw
 
-[中文](README.md) | **AI Video Creation CLI | Host-Neutral Skill Pack + CLI**
+[中文](README.md) | **AI Video Creation CLI + Skill Pack**
 
 ## Overview
 
-videoclaw is an AI video creation CLI focused on splitting the product into three layers:
+videoclaw is now intentionally shaped as two layers:
 
-- **CLI execution layer**: project structure, model calls, artifact persistence
-- **Skill pack workflow layer**: interaction, prompts, templates, creative flow
-- **Host adapter layer**: connect the same CLI + skills to different hosts
+1. **CLI execution layer**: project structure, model calls, artifact persistence
+2. **Skill pack workflow layer**: interaction, prompts, templates, and creative flow
 
-The recommended paths are now:
+The project no longer treats host-native plugins as the main distribution path. The primary distribution model is now:
 
-- **Default image path**: `codex-host-image` (if you already have Codex / ChatGPT login available)
-- **High-quality image path**: Gemini
-- **Default video path**: Seedance 2.0
-
-In other words, videoclaw now prioritizes “if you already have a Codex subscription, you can generate images through that path” as the default user experience, while still keeping other providers and the host-neutral architecture direction.
+- install the `videoclaw` CLI
+- install the skill pack from the repo `skills/` directory via `skills.sh`
 
 ## Install CLI
 
@@ -49,31 +45,28 @@ export GOOGLE_API_KEY=your-api-key
 export OPENAI_API_KEY=your-api-key
 ```
 
-## Install Skill Pack / Host Adapter
+## Install Skill Pack (primary path)
 
-videoclaw distribution is now split into two layers:
-
-1. **CLI**: standard Python package (`uvx` / `pip`)
-2. **Skill pack / host adapter**: installed per host
-
-### Claude Code adapter
-
-Claude Code can still install the adapter via marketplace:
+The recommended way to install videoclaw workflows is through `skills.sh`:
 
 ```bash
-/claude install marketplace https://github.com/T0UGH/videoclaw/raw/main/.claude-plugin/marketplace.json
+npx skills add T0UGH/videoclaw --all
 ```
 
-This marketplace entry should now be understood as the **Claude Code adapter**, not the only distribution center for videoclaw.
+Common variants:
 
-### Other hosts
+```bash
+# Local development install from the repo root
+npx skills add . --all
 
-The long-term direction is to make `skills/` the canonical skill pack and provide thin adapters per host:
+# Install a single skill
+npx skills add T0UGH/videoclaw --skill video-quick-create
 
-- Claude Code adapter
-- OpenClaw adapter (priority target)
-- Hermes adapter (directory-based first)
-- Codex runtime / host capability adapter
+# List installable skills
+npx skills add T0UGH/videoclaw --list
+```
+
+This is now the main distribution path. The `skills/` directory is the canonical workflow source of truth.
 
 ## Quick Start
 
@@ -94,8 +87,8 @@ videoclaw now uses:
 
 - one `project` for shared assets and multiple videos
 - one `video` as an independent production unit
-- `render/` for single-video generation workflow by default
-- optional `clips/` for future multi-segment expansion
+- `render/` for the default single-video generation workflow
+- `clips/` for multi-segment expansion
 
 Recommended structure:
 
@@ -145,7 +138,7 @@ Supported Codex image model tiers:
 
 Recommended default: `gpt-image-2-medium`
 
-If you are not using the Codex subscription path, switch to the OpenAI provider:
+If you are not using the Codex subscription path, switch to OpenAI or another provider, for example:
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=openai-image
@@ -158,7 +151,7 @@ If `OPENAI_API_KEY` is configured, `openai-image` calls the official OpenAI imag
 
 ### Single-video render flow
 
-Single videos now persist artifacts under `videos/<slug>/render/`:
+Single videos persist artifacts under `videos/<slug>/render/`:
 
 - `input/reference.json`
 - `input/prompt.md`
@@ -166,7 +159,17 @@ Single videos now persist artifacts under `videos/<slug>/render/`:
 - `selected.mp4`
 - `task.json`
 
-### Current CLI skeleton
+### Multi-segment flow
+
+Multi-segment videos can use `clips/`:
+
+- `clips/<clip-id>/input/reference.json`
+- `clips/<clip-id>/input/prompt.md`
+- `clips/<clip-id>/candidates/`
+- `clips/<clip-id>/selected.mp4`
+- `clips/<clip-id>/task.json`
+
+### Current commands
 
 ```bash
 videoclaw video create my-project demo-video
@@ -174,6 +177,12 @@ videoclaw video list my-project
 videoclaw video status my-project demo-video
 videoclaw video generate my-project demo-video --prompt "walk forward" --provider mock
 videoclaw video select my-project demo-video v001.mp4
+
+videoclaw video clip create my-project demo-video clip-01
+videoclaw video clip generate my-project demo-video clip-01 --prompt "turn head" --provider mock
+videoclaw video clip select my-project demo-video clip-01 v001.mp4
+
+videoclaw merge --project my-project --output final.mp4
 ```
 
 ## Supported Model Providers / Backends
@@ -213,9 +222,14 @@ All video creation workflows live in the `skills/` directory as the canonical sk
 | `videoclaw video status` | Show video status |
 | `videoclaw video generate` | Generate a single-video candidate |
 | `videoclaw video select` | Select a single-video candidate |
+| `videoclaw video clip create` | Create a clip |
+| `videoclaw video clip generate` | Generate a clip candidate |
+| `videoclaw video clip select` | Select a clip candidate |
 | `videoclaw t2i` | Text-to-image |
 | `videoclaw i2i` | Image-to-image |
+| `videoclaw image smoke` | Smoke test an image backend |
 | `videoclaw i2v` | Image-to-video |
+| `videoclaw video-smoke` | Smoke test a video backend |
 | `videoclaw audio` | Generate audio |
 | `videoclaw merge` | Merge videos |
 | `videoclaw config` | Configuration management |
@@ -240,3 +254,11 @@ pytest
 ruff check .
 black .
 ```
+
+## Notes
+
+- `skills/` is the canonical skill pack and the only workflow source of truth.
+- Host-side differences should be absorbed by `skills.sh` installation as much as possible instead of maintaining deep host-native plugin integrations.
+- The primary recommended paths have already been smoke-tested for real:
+  - Image: `codex-host-image`
+  - Video: `volcengine` / Ark / Seedance
