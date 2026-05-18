@@ -51,12 +51,15 @@ description: Use when user wants to initialize a new video project with director
 
 1. 用 AskUserQuestion 依次收集配置（项目名称、图像提供商、视频提供商、存储方式）
 2. 调用 `videoclaw init <project-name>` 创建项目
-3. 用 `videoclaw config --project <name> --set` 设置项目配置（推荐使用新的 backend 字段）
+3. 用 `videoclaw config --project <name> --set` 设置项目配置（推荐使用新的 backend 字段；如果已有 Codex / ChatGPT 登录环境，建议优先用 Codex-first 路径）
 
 ```bash
 # 示例执行
 videoclaw init my-video
-videoclaw config --project my-video --set models.image.backend=gemini
+videoclaw config --project my-video --set models.image.backend=codex-host-image
+videoclaw config --project my-video --set models.image.model=gpt-image-2-medium
+videoclaw config --project my-video --set models.image.auth=chatgpt_login
+videoclaw config --project my-video --set models.image.transport=codex_oauth
 videoclaw config --project my-video --set models.video.provider=volcengine
 videoclaw config --project my-video --set storage.provider=google_drive
 ```
