@@ -123,34 +123,36 @@ my-project/
 
 ## 图片 Backend
 
-图片能力正在升级为双轨模型：
+图片能力现在有两条正式可用路径：
 
-- `openai-image`：正式 provider（长期方向）
-- `codex-host-image`：宿主适配器（低门槛接入）
+- `codex-host-image`：Hermes-style / OAuth-native Codex image provider（默认推荐）
+- `openai-image`：OpenAI 官方 API provider
 
-当前配置推荐统一使用：
+如果你已经有 Codex / ChatGPT 登录环境，推荐直接走：
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=codex-host-image
+videoclaw config --project my-project --set models.image.model=gpt-image-2-medium
 videoclaw config --project my-project --set models.image.auth=chatgpt_login
-videoclaw config --project my-project --set models.image.codex_mode=exec
+videoclaw config --project my-project --set models.image.transport=codex_oauth
 ```
 
-如果你不走 Codex 订阅链路，再切到其他 provider，例如：
+支持的 Codex 图片模型档位：
 
-```bash
-videoclaw config --project my-project --set models.image.backend=gemini
-videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
-```
+- `gpt-image-2-low`
+- `gpt-image-2-medium`
+- `gpt-image-2-high`
 
-也兼容新的 backend 命名：
+推荐默认值：`gpt-image-2-medium`
+
+如果你不走 Codex 订阅链路，再切到 OpenAI 或其他 provider，例如：
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=openai-image
 videoclaw config --project my-project --set models.image.auth=api_key
 ```
 
-如果你配置了 `OPENAI_API_KEY`，`openai-image` 现在会直接调用 OpenAI 官方图片 API，而不是再走过渡兜底。
+如果你配置了 `OPENAI_API_KEY`，`openai-image` 会直接调用 OpenAI 官方图片 API。
 
 ## 视频工作流
 

@@ -123,34 +123,36 @@ my-project/
 
 ## Image Backends
 
-Image generation is evolving toward a dual-track model:
+Image generation now has two formal paths:
 
-- `openai-image`: formal provider direction
-- `codex-host-image`: host adapter direction
+- `codex-host-image`: Hermes-style / OAuth-native Codex image provider (default recommendation)
+- `openai-image`: official OpenAI API provider
 
-Current recommended config now starts with the Codex subscription path:
+If you already have Codex / ChatGPT login available, use:
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=codex-host-image
+videoclaw config --project my-project --set models.image.model=gpt-image-2-medium
 videoclaw config --project my-project --set models.image.auth=chatgpt_login
-videoclaw config --project my-project --set models.image.codex_mode=exec
+videoclaw config --project my-project --set models.image.transport=codex_oauth
 ```
 
-If you are not using the Codex-host flow, switch to another provider, for example:
+Supported Codex image model tiers:
 
-```bash
-videoclaw config --project my-project --set models.image.backend=gemini
-videoclaw config --project my-project --set models.image.model=gemini-3-pro-image-preview
-```
+- `gpt-image-2-low`
+- `gpt-image-2-medium`
+- `gpt-image-2-high`
 
-It also supports the new backend naming:
+Recommended default: `gpt-image-2-medium`
+
+If you are not using the Codex subscription path, switch to the OpenAI provider:
 
 ```bash
 videoclaw config --project my-project --set models.image.backend=openai-image
 videoclaw config --project my-project --set models.image.auth=api_key
 ```
 
-If `OPENAI_API_KEY` is configured, `openai-image` now calls the official OpenAI image API directly instead of going through the earlier fallback path.
+If `OPENAI_API_KEY` is configured, `openai-image` calls the official OpenAI image API directly.
 
 ## Video Workflow
 

@@ -17,6 +17,7 @@ from videoclaw.cli.commands.merge import merge
 from videoclaw.cli.commands.preview import preview
 from videoclaw.cli.commands.t2i import t2i
 from videoclaw.cli.commands.upload import upload
+from videoclaw.cli.commands.video_smoke import video_smoke
 from videoclaw.cli.commands.doctor import doctor
 from videoclaw.config.loader import Config
 from videoclaw.models.factory import get_video_backend
@@ -428,6 +429,7 @@ main.add_command(i2i)
 main.add_command(image)
 main.add_command(upload)
 main.add_command(doctor)
+main.add_command(video_smoke, name="video-smoke")
 if publish is not None:
     main.add_command(publish)
 main.add_command(video)

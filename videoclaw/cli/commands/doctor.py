@@ -2,12 +2,27 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 from pathlib import Path
 
 import click
 
 from videoclaw.config.loader import Config
 from videoclaw.models.factory import normalize_image_backend
+
+VIDEO_BACKEND_ALIASES = {
+    "mock-video": "mock",
+    "volcengine-video": "volcengine",
+    "dashscope-video": "dashscope",
+}
+
+
+def has_ffmpeg() -> bool:
+    try:
+        subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
 
 @click.command()
@@ -22,19 +37,36 @@ def doctor(backend: str, project: str | None):
 
     config = Config(project_path)
     normalized = normalize_image_backend(backend)
+    video_normalized = VIDEO_BACKEND_ALIASES.get(backend)
+
+    if video_normalized == "mock":
+        click.echo("OK mock video backend available")
+        click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
+        return
+
+    if video_normalized == "volcengine":
+        api_key = config.get("ark.api_key")
+        click.echo("OK ARK_API_KEY configured" if api_key else "FAIL ARK_API_KEY missing")
+        click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
+        return
+
+    if video_normalized == "dashscope":
+        api_key = config.get("dashscope.api_key")
+        click.echo("OK DASHSCOPE_API_KEY configured" if api_key else "FAIL DASHSCOPE_API_KEY missing")
+        click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
+        return
 
     if backend == "codex-host-image":
-        codex_binary = config.get("models.image.codex_binary", "codex")
-        resolved = shutil.which(codex_binary)
-        if resolved:
-            click.echo(f"OK codex binary: {resolved}")
-        else:
-            click.echo(f"FAIL codex binary not found: {codex_binary}")
+        from videoclaw.models.codex_host_image import CodexHostImageBackend
 
-        code_home = Path.home() / ".codex"
-        click.echo(f"INFO codex home: {code_home}")
-        click.echo("INFO auth source: chatgpt_login")
-        click.echo("INFO recommended path: codex-host-image is the default image backend for Codex subscribers")
+        token = CodexHostImageBackend(model="gpt-image-2-medium", config={})._read_codex_access_token()
+        click.echo(f"backend: {backend}")
+        click.echo("auth: chatgpt_login")
+        click.echo("transport: codex_oauth")
+        click.echo(f"status: {'available' if token else 'unavailable'}")
+        click.echo(f"token_source: {'~/.hermes/auth.json' if token else 'missing'}")
+        click.echo("available_models: gpt-image-2-low, gpt-image-2-medium, gpt-image-2-high")
+        click.echo("recommended_model: gpt-image-2-medium")
         return
 
     if backend == "openai-image":
@@ -54,15 +86,21 @@ def doctor(backend: str, project: str | None):
     if normalized == "volcengine":
         api_key = config.get("ark.api_key")
         click.echo("OK ARK_API_KEY configured" if api_key else "FAIL ARK_API_KEY missing")
+        if "video" in backend or backend in {"volcengine-video", "volcengine"}:
+            click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
         return
 
     if normalized == "dashscope":
         api_key = config.get("dashscope.api_key")
         click.echo("OK DASHSCOPE_API_KEY configured" if api_key else "FAIL DASHSCOPE_API_KEY missing")
+        if "video" in backend or backend in {"dashscope-video", "dashscope"}:
+            click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
         return
 
     if normalized == "mock":
         click.echo("OK mock backend available")
+        if "video" in backend or backend == "mock-video":
+            click.echo(f"{'OK' if has_ffmpeg() else 'FAIL'} ffmpeg available")
         return
 
     click.echo(f"FAIL unknown backend: {backend}")

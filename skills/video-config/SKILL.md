@@ -43,7 +43,9 @@ Claude Code: videoclaw config --list
 
 # 设置项目使用的模型
 Claude Code: videoclaw config --project mars-video --set models.image.backend=codex-host-image
+Claude Code: videoclaw config --project mars-video --set models.image.model=gpt-image-2-medium
 Claude Code: videoclaw config --project mars-video --set models.image.auth=chatgpt_login
+Claude Code: videoclaw config --project mars-video --set models.image.transport=codex_oauth
 Claude Code: videoclaw config --project mars-video --set models.video.provider=volcengine
 
 # 查看配置

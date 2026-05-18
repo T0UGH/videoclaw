@@ -10,7 +10,6 @@ from typing import Any, Dict, Optional
 class Config:
     """配置管理类"""
 
-    # 环境变量映射
     ENV_MAPPINGS = {
         "dashscope.api_key": "DASHSCOPE_API_KEY",
         "volcengine.ak": "VOLCENGINE_AK",
@@ -27,7 +26,6 @@ class Config:
 
     @staticmethod
     def _deep_merge(base: dict, override: dict) -> dict:
-        """深度合并两个字典，override 优先"""
         result = base.copy()
         for key, value in override.items():
             if key in result and isinstance(result[key], dict) and isinstance(value, dict):
@@ -58,8 +56,29 @@ class Config:
 
         self._config = Config._deep_merge(global_config, project_config)
 
+    def _plotloom_fallback(self, key: str) -> Any:
+        plotloom_path = Path.home() / ".plotloom" / ".env.toml"
+        if not plotloom_path.exists():
+            return None
+        try:
+            text = plotloom_path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+
+        if key == "ark.api_key":
+            in_volcengine = False
+            for line in text.splitlines():
+                stripped = line.strip()
+                if stripped == "[adapters.volcengine-seedance]":
+                    in_volcengine = True
+                    continue
+                if stripped.startswith("[") and stripped != "[adapters.volcengine-seedance]":
+                    in_volcengine = False
+                if in_volcengine and stripped.startswith("ark_api_key"):
+                    return stripped.split("=", 1)[1].strip().strip('"')
+        return None
+
     def get(self, key: str, default: Any = None) -> Any:
-        """获取配置值"""
         if key in Config.ENV_MAPPINGS:
             env_key = Config.ENV_MAPPINGS[key]
             if env_key in os.environ:
@@ -75,15 +94,20 @@ class Config:
             if isinstance(value, dict):
                 value = value.get(k)
             else:
-                return default
-        return value if value is not None else default
+                value = None
+                break
+        if value is not None:
+            return value
+
+        plotloom_value = self._plotloom_fallback(key)
+        if plotloom_value is not None:
+            return plotloom_value
+        return default
 
     def get_all(self) -> Dict[str, Any]:
-        """获取所有配置"""
         return self._config.copy()
 
     def get_storage_config(self) -> Dict[str, Any]:
-        """获取存储配置"""
         return {
             "provider": self.get("storage.provider", "local"),
             "upload_on_generate": self.get("storage.upload_on_generate", False),
@@ -91,11 +115,11 @@ class Config:
         }
 
     def get_image_backend_config(self) -> Dict[str, Any]:
-        """获取图片后端配置"""
         backend = self.get("models.image.backend") or self.get("models.image.provider", "codex-host-image")
         model = self.get("models.image.model")
         auth = self.get("models.image.auth")
         codex_mode = self.get("models.image.codex_mode")
+        transport = self.get("models.image.transport", "codex_oauth")
 
         provider_api_keys = {
             "google.api_key": self.get("google.api_key"),
@@ -109,5 +133,6 @@ class Config:
             "model": model,
             "auth": auth,
             "codex_mode": codex_mode,
+            "transport": transport,
             **provider_api_keys,
         }

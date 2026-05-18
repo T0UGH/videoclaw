@@ -22,10 +22,11 @@
 
 | 配置项 | 说明 | 示例值 | 可选值 |
 |--------|------|--------|--------|
-| `models.image.backend` | 图像 backend | `gemini` | `volcengine`, `dashscope`, `gemini`, `mock`, `openai-image`, `codex-host-image` |
-| `models.image.model` | 图像模型名 | `gemini-3-pro-image-preview` | 见下方模型列表 |
-| `models.image.auth` | 认证来源语义 | `api_key` | `api_key`, `chatgpt_login` |
-| `models.image.codex_mode` | Codex host 执行模式 | `exec` | `exec` |
+| `models.image.backend` | 图像 backend | `codex-host-image` | `volcengine`, `dashscope`, `gemini`, `mock`, `openai-image`, `codex-host-image` |
+| `models.image.model` | 图像模型名 | `gpt-image-2-medium` | `gpt-image-2-low`, `gpt-image-2-medium`, `gpt-image-2-high`, 其他 provider 对应模型 |
+| `models.image.auth` | 认证来源语义 | `chatgpt_login` | `api_key`, `chatgpt_login` |
+| `models.image.codex_mode` | 旧 Codex CLI 模式字段（兼容保留） | `exec` | `exec` |
+| `models.image.transport` | Codex 图片传输语义 | `codex_oauth` | `codex_oauth` |
 
 兼容说明：
 
@@ -86,8 +87,11 @@
 - 直接调用 OpenAI 官方图片 API
 
 **codex-host-image**
-- 当前通过本机 Codex host capability 出图；
-- 依赖本机 `codex` binary 和登录态。
+- Hermes-style / OAuth-native Codex image provider
+- 不需要 `OPENAI_API_KEY`
+- 读取本机 Codex / ChatGPT OAuth token
+- 直接调用 `https://chatgpt.com/backend-api/codex`
+- 支持：`gpt-image-2-low`、`gpt-image-2-medium`、`gpt-image-2-high`
 
 ### 视频
 
