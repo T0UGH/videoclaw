@@ -17,6 +17,7 @@ class Config:
         "ark.api_key": "ARK_API_KEY",
         "google.api_key": "GOOGLE_API_KEY",
         "openai.api_key": "OPENAI_API_KEY",
+        "atlas.api_key": "ATLASCLOUD_API_KEY",
     }
 
     def __init__(self, project_path: Optional[Path] = None):
@@ -126,6 +127,7 @@ class Config:
             "openai.api_key": self.get("openai.api_key"),
             "dashscope.api_key": self.get("dashscope.api_key"),
             "ark.api_key": self.get("ark.api_key"),
+            "atlas.api_key": self.get("atlas.api_key"),
         }
 
         return {
