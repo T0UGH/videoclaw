@@ -22,7 +22,7 @@
 
 | 配置项 | 说明 | 示例值 | 可选值 |
 |--------|------|--------|--------|
-| `models.image.backend` | 图像 backend | `codex-host-image` | `volcengine`, `dashscope`, `gemini`, `mock`, `openai-image`, `codex-host-image` |
+| `models.image.backend` | 图像 backend | `codex-host-image` | `volcengine`, `dashscope`, `gemini`, `mock`, `openai-image`, `codex-host-image`, `atlas` |
 | `models.image.model` | 图像模型名 | `gpt-image-2-medium` | `gpt-image-2-low`, `gpt-image-2-medium`, `gpt-image-2-high`, 其他 provider 对应模型 |
 | `models.image.auth` | 认证来源语义 | `chatgpt_login` | `api_key`, `chatgpt_login` |
 | `models.image.codex_mode` | 旧 Codex CLI 模式字段（兼容保留） | `exec` | `exec` |
@@ -37,7 +37,7 @@
 
 | 配置项 | 说明 | 示例值 | 可选值 |
 |--------|------|--------|--------|
-| `models.video.provider` | 视频生成提供商 | `volcengine` | `volcengine`, `dashscope`, `mock` |
+| `models.video.provider` | 视频生成提供商 | `volcengine` | `volcengine`, `dashscope`, `mock`, `atlas` |
 | `models.video.model` | 视频模型 | `seedance` | `seedance`, `wan2.6-i2v` |
 | `models.video.resolution` | 视频分辨率 | `1280x720` | `1280x720`, `1920x1080` |
 
@@ -64,6 +64,7 @@
 | `ark.api_key` | `ARK_API_KEY` | 火山引擎方舟 API Key |
 | `google.api_key` | `GOOGLE_API_KEY` | Google API Key |
 | `openai.api_key` | `OPENAI_API_KEY` | OpenAI API Key |
+| `atlas.api_key` | `ATLASCLOUD_API_KEY` | Atlas Cloud API Key |
 
 ## 各提供商 / backend 模型列表
 
@@ -86,6 +87,16 @@
 - 使用 `OPENAI_API_KEY` 或 `openai.api_key`
 - 直接调用 OpenAI 官方图片 API
 
+**atlas (Atlas Cloud)**
+- `bytedance/seedream-v4`（默认）、`bytedance/seedream-v4.5`
+- `google/nano-banana-pro/text-to-image`、`openai/gpt-image-2/text-to-image`
+- 使用 `ATLASCLOUD_API_KEY` 或 `atlas.api_key`
+- 图片和视频走同一套提交-轮询接口，所以同一个 key 两边都能用
+- **尺寸参数按模型而异（实测）**：seedream 系列精确遵守 `size`（内部转成 Atlas 的 `宽*高`），
+  但**最小 921600 像素**（低于 1280×720 会被接口拒掉）；nano-banana 系列忽略 `size`、只认
+  `aspect_ratio`，后端会自动分流
+- 图片模型返回 **JPEG**，落盘时按真实字节修正扩展名，不会写出名不副实的 `.png`
+
 **codex-host-image**
 - Hermes-style / OAuth-native Codex image provider
 - 不需要 `OPENAI_API_KEY`
@@ -94,6 +105,14 @@
 - 支持：`gpt-image-2-low`、`gpt-image-2-medium`、`gpt-image-2-high`
 
 ### 视频
+
+**atlas (Atlas Cloud)**
+- `bytedance/seedance-2.0/image-to-video`（默认）、`bytedance/seedance-2.0-fast/image-to-video`
+- 使用 `ATLASCLOUD_API_KEY` 或 `atlas.api_key`
+- `shot_type` 默认 `single`（传空串会被接口拒掉）
+- `generate_audio` 默认 **false**：Seedance 2.0 默认生成同步音频，配乐撞供应商版权校验会让整条
+  任务 failed，需要音频时显式打开
+- 参考视频 / 参考音频在这条链路上没有对应字段，传了会直接报错而不是静默丢弃
 
 **volcengine (Seedance)**
 - `seedance-v1`

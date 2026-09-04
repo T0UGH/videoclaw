@@ -37,6 +37,9 @@ def get_image_backend(provider: str, model: str, config: Dict[str, Any]) -> Imag
     elif normalized == "openai-image":
         from videoclaw.models.openai_image import OpenAIImageBackend
         return OpenAIImageBackend(model, config)
+    elif normalized == "atlas":
+        from videoclaw.models.atlas.image import AtlasImageBackend
+        return AtlasImageBackend(model, config)
     else:
         raise ValueError(f"Unknown image provider: {provider}")
 
@@ -49,6 +52,9 @@ def get_video_backend(provider: str, model: str, config: Dict[str, Any]) -> Vide
     elif provider == "volcengine":
         from videoclaw.models.volcengine.seedance import VolcEngineSeedance
         return VolcEngineSeedance(model, config)
+    elif provider == "atlas":
+        from videoclaw.models.atlas.video import AtlasVideoBackend
+        return AtlasVideoBackend(model, config)
     elif provider == "mock":
         from videoclaw.models.mock.video import MockVideoBackend
         return MockVideoBackend(model, config)
